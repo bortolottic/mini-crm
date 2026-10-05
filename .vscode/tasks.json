@@ -126,7 +126,7 @@
         "cwd": "${workspaceFolder}/backend",
         "env": {
           "APP_ENV": "development",
-          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm",
+          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@127.0.0.1:3434/minicrm",
           "JWT_SECRET": "dev-jwt-secret-trocar-em-producao-0123456789"
         }
       },
@@ -144,7 +144,7 @@
         "cwd": "${workspaceFolder}/backend",
         "env": {
           "APP_ENV": "development",
-          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm",
+          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@127.0.0.1:3434/minicrm",
           "JWT_SECRET": "dev-jwt-secret-trocar-em-producao-0123456789"
         }
       },
@@ -162,7 +162,7 @@
         "cwd": "${workspaceFolder}/backend",
         "env": {
           "APP_ENV": "development",
-          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm",
+          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@127.0.0.1:3434/minicrm",
           "JWT_SECRET": "dev-jwt-secret-trocar-em-producao-0123456789"
         }
       },
@@ -179,7 +179,7 @@
         "cwd": "${workspaceFolder}/backend",
         "env": {
           "APP_ENV": "development",
-          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm",
+          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@127.0.0.1:3434/minicrm",
           "JWT_SECRET": "dev-jwt-secret-trocar-em-producao-0123456789",
           "ADMIN_NAME": "Administrador",
           "ADMIN_EMAIL": "admin@minicrm.local",
@@ -200,7 +200,7 @@
         "cwd": "${workspaceFolder}/backend",
         "env": {
           "APP_ENV": "development",
-          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm",
+          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@127.0.0.1:3434/minicrm",
           "JWT_SECRET": "dev-jwt-secret-trocar-em-producao-0123456789"
         }
       },
@@ -350,8 +350,8 @@
         "cwd": "${workspaceFolder}/backend",
         "env": {
           "APP_ENV": "test",
-          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm_test",
-          "TEST_DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm_test",
+          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@127.0.0.1:3434/minicrm_test",
+          "TEST_DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@127.0.0.1:3434/minicrm_test",
           "JWT_SECRET": "test-jwt-secret-0123456789-0123456789"
         }
       },

@@ -1,0 +1,10 @@
+/* Entrada de estilos.
+ *
+ * tokens.css traz a base (reset leve, tipografia, componentes .v-*). O Tailwind
+ * entra só com `components` e `utilities`: o preflight dele (`@tailwind base`)
+ * sobrescreveria a base dos tokens e foi deixado de fora de propósito.
+ */
+@import './tokens.css';
+
+@tailwind components;
+@tailwind utilities;

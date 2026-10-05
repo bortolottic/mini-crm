@@ -1,0 +1,45 @@
+{
+  "name": "minicrm-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run lint:design && vue-tsc -b && vite build",
+    "preview": "vite preview --port 3100",
+    "lint": "eslint .",
+    "lint:design": "node scripts/check-design.mjs",
+    "typecheck": "vue-tsc -b",
+    "test": "vitest",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@vueuse/core": "^14.2.1",
+    "axios": "^1.13.5",
+    "lucide-vue-next": "^0.575.0",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.25",
+    "vue-i18n": "^11.2.8",
+    "vue-router": "^5.0.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^24.10.1",
+    "@vitejs/plugin-vue": "^6.0.2",
+    "@vue/eslint-config-typescript": "^14.9.0",
+    "@vue/test-utils": "^2.5.1",
+    "@vue/tsconfig": "^0.8.1",
+    "autoprefixer": "^10.4.24",
+    "eslint": "^10.12.0",
+    "eslint-plugin-vue": "^10.11.1",
+    "jsdom": "^29.1.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.71.1",
+    "vite": "^7.3.1",
+    "vitest": "^5.0.3",
+    "vue-tsc": "^3.1.5"
+  }
+}

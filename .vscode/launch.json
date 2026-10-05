@@ -100,7 +100,7 @@
       "envFile": "${workspaceFolder}/.vscode/dev.env",
       "env": {
         "APP_ENV": "test",
-        "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm_test"
+        "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@127.0.0.1:3434/minicrm_test"
       },
       "justMyCode": false,
       "presentation": { "group": "03-testes", "order": 1 }
@@ -134,7 +134,7 @@
       "envFile": "${workspaceFolder}/.vscode/dev.env",
       "env": {
         "APP_ENV": "test",
-        "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm_test"
+        "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@127.0.0.1:3434/minicrm_test"
       },
       "justMyCode": false,
       "presentation": { "group": "03-testes", "order": 3 }

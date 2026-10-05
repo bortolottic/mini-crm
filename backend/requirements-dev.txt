@@ -1,0 +1,8 @@
+-r requirements.txt
+
+pytest~=8.4
+pytest-cov~=7.0
+httpx~=0.28
+ruff~=0.13
+mypy~=1.18
+debugpy~=1.8

@@ -40,7 +40,7 @@ Fluxos no VS Code:
 * **Depurar dentro do container:** tarefa `docker: subir backend em container (debugpy)` → launch `Anexar: backend em container`.
 * **Portão local (= CI):** tarefa `qualidade: tudo`.
 
-> As tarefas e os launches referenciam arquivos criados na **F0** (`backend/app/main.py`, `backend/requirements-dev.txt`, `alembic.ini`, `app/seed.py`, `frontend/package.json`, Dockerfiles, `docker/nginx/nginx.conf`). Hoje só funcionam as tarefas `docker: subir banco`, `banco: psql` e `docker: parar/derrubar`.
+> **F0 concluída** (branch `fase-00-scaffold`): todas as tarefas e launches funcionam.
 
 ### Definição de Pronto (vale para toda fase)
 
@@ -62,27 +62,27 @@ Fluxos no VS Code:
 **Objetivo:** esqueleto executável em Docker e no host, com CI e todas as tarefas do VS Code funcionando.
 
 Backend
-- [ ] `backend/pyproject.toml` (ruff, mypy, pytest config) + `requirements.txt` e `requirements-dev.txt`, com versões alinhadas ao Vision.AI (FastAPI 0.118, SQLAlchemy 2.0.44, Pydantic 2.12, pydantic-settings 2.11, PyJWT 2.10) + psycopg 3, alembic, argon2-cffi, structlog, weasyprint, babel, jinja2; dev: pytest, pytest-cov, httpx, ruff, mypy, debugpy.
-- [ ] `app/main.py` com `create_app()`, CORS a partir de `CORS_ORIGINS`, middleware `X-Request-ID` e handlers de erro (envelope da SPEC §7.1).
-- [ ] `core/config.py` (pydantic-settings; falha em `production` sem `JWT_SECRET` com 32+ caracteres), `core/db.py` (engine, sessão, Unit of Work), `core/logging.py` (JSON), `core/errors.py` (`AppError`), `core/pagination.py`.
-- [ ] `GET /api/v1/health` e `/health/ready`.
-- [ ] Alembic: `alembic.ini`, `migrations/env.py` lendo `DATABASE_URL`, migration `0001` criando as extensões `pgcrypto`, `pg_trgm` e `citext`.
-- [ ] `app/seed.py` (esqueleto idempotente, lê `ADMIN_*`).
-- [ ] `tests/conftest.py`: cria o schema no `minicrm_test` via Alembic, uma transação revertida por teste, `AsyncClient`.
-- [ ] `backend/Dockerfile` multi-stage com alvos **`prod`** (python:3.12-slim + pango/cairo/fontes do WeasyPrint, usuário não-root) e **`dev`** (+ requirements-dev/debugpy). `entrypoint.sh`: espera o banco → `alembic upgrade head` → `python -m app.seed` → uvicorn.
+- [x] `backend/pyproject.toml` (ruff, mypy, pytest config) + `requirements.txt` e `requirements-dev.txt`, com versões alinhadas ao Vision.AI (FastAPI 0.118, SQLAlchemy 2.0.44, Pydantic 2.12, pydantic-settings 2.11, PyJWT 2.10) + psycopg 3, alembic, argon2-cffi, structlog, weasyprint, babel, jinja2; dev: pytest, pytest-cov, httpx, ruff, mypy, debugpy.
+- [x] `app/main.py` com `create_app()`, CORS a partir de `CORS_ORIGINS`, middleware `X-Request-ID` e handlers de erro (envelope da SPEC §7.1).
+- [x] `core/config.py` (pydantic-settings; falha em `production` sem `JWT_SECRET` com 32+ caracteres), `core/db.py` (engine, sessão, Unit of Work), `core/logging.py` (JSON), `core/errors.py` (`AppError`), `core/pagination.py`.
+- [x] `GET /api/v1/health` e `/health/ready`.
+- [x] Alembic: `alembic.ini`, `migrations/env.py` lendo `DATABASE_URL`, migration `0001` criando as extensões `pgcrypto`, `pg_trgm` e `citext`.
+- [x] `app/seed.py` (esqueleto idempotente, lê `ADMIN_*`).
+- [x] `tests/conftest.py`: cria o schema no `minicrm_test` via Alembic, uma transação revertida por teste, `AsyncClient`.
+- [x] `backend/Dockerfile` multi-stage com alvos **`prod`** (python:3.12-slim + pango/cairo/fontes do WeasyPrint, usuário não-root) e **`dev`** (+ requirements-dev/debugpy). `entrypoint.sh`: espera o banco → `alembic upgrade head` → `python -m app.seed` → uvicorn.
 
 Frontend
-- [ ] Vite + Vue 3.5 + TS strict, Pinia, Vue Router, vue-i18n, Tailwind 3, lucide-vue-next, axios, @vueuse, nas mesmas versões do `vision_hub`.
-- [ ] `vite.config.ts`: porta **3100**, proxy `/api` → `http://localhost:3300`.
-- [ ] Copiar e adaptar do Vision.AI (SPEC §14): `tokens.css`, fontes Inter embarcadas, `tailwind.config.js`, `scripts/check-design.mjs`, primitivas `VModal`, `VTabs`, `VToasts`, `VPaginador`, `VIconButton`, `VFieldHint`, `AppLayout`.
-- [ ] `services/http.ts` (envelope, `ApiError`, ganchos de refresh vazios), router com rota `/` placeholder, tema claro/escuro.
-- [ ] Scripts npm: `dev`, `build` (lint:design + vue-tsc + vite build), `lint`, `test` (vitest), `lint:design`. ESLint com `vue/no-v-html: error`. Playwright instalado.
-- [ ] `frontend/Dockerfile` (node build → nginx estático com fallback SPA).
+- [x] Vite + Vue 3.5 + TS strict, Pinia, Vue Router, vue-i18n, Tailwind 3, lucide-vue-next, axios, @vueuse, nas mesmas versões do `vision_hub`.
+- [x] `vite.config.ts`: porta **3100**, proxy `/api` → `http://localhost:3300`.
+- [x] Copiar e adaptar do Vision.AI (SPEC §14): `tokens.css`, fontes Inter embarcadas, `tailwind.config.js`, `scripts/check-design.mjs`, primitivas `VModal`, `VTabs`, `VToasts`, `VPaginador`, `VIconButton`, `VFieldHint`, `AppLayout`.
+- [x] `services/http.ts` (envelope, `ApiError`, ganchos de refresh vazios), router com rota `/` placeholder, tema claro/escuro.
+- [x] Scripts npm: `dev`, `build` (lint:design + vue-tsc + vite build), `lint`, `test` (vitest), `lint:design`. ESLint com `vue/no-v-html: error`. Playwright instalado.
+- [x] `frontend/Dockerfile` (node build → nginx estático com fallback SPA).
 
 Infra e repositório
-- [ ] `docker/nginx/nginx.conf`: `/api/` → backend:8000, o resto → frontend:80, headers de segurança, `client_max_body_size 2m`.
-- [ ] CI (GitHub Actions): os mesmos passos de `qualidade: tudo` + build das imagens + smoke `docker compose up --wait` + `curl /api/v1/health`.
-- [ ] README (pré-requisitos, primeiro uso, portas, tarefas) e `CLAUDE.md` (comandos e convenções).
+- [x] `docker/nginx/nginx.conf`: `/api/` → backend:8000, o resto → frontend:80, headers de segurança, `client_max_body_size 2m`.
+- [ ] CI (GitHub Actions): os mesmos passos de `qualidade: tudo` + build das imagens + smoke `docker compose up --wait` + `curl /api/v1/health`. *(workflow escrito em `.github/workflows/ci.yml`; cada passo validado localmente; falta a primeira execução no GitHub, após o push)*
+- [x] README (pré-requisitos, primeiro uso, portas, tarefas) e `CLAUDE.md` (comandos e convenções).
 - [x] `docker-compose.yml`, `docker-compose.dev.yml`, `.env.example`, `.gitignore`, `docker/postgres/init`, `.vscode/*` *(feitos no planejamento)*.
 
 **Portão F0:** num clone limpo, `setup: tudo` e `Tudo: API + Web` funcionam; o breakpoint em `/health` para; `docker: subir stack completo` responde em :8080; o CI está verde.

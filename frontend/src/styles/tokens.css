@@ -1,0 +1,780 @@
+/* MINI-CRM — tokens do sistema de design.
+ *
+ * Copiado de `vision.ai/vision_hub/src/styles/tokens.css` (SPEC §14): a
+ * interface do CRM mantém a linguagem visual do Vision.AI. As referências a
+ * requisitos (RNF-*, RF-*, SPEC §16) nos comentários abaixo são do Vision.AI e
+ * foram mantidas como justificativa das decisões. Prefixo `--v-` preservado
+ * (SPEC §19, pendência 4). Mudanças locais devem ser marcadas com "MINI-CRM:".
+ *
+ * Texto original:
+ *
+ * **Refundado sobre a gramática do n8n** (SPEC §16.2). A versão anterior era
+ * editorial — Archivo, peso 800, caixa-alta com tracking de 0.08em, raio zero,
+ * réguas de tinta a 40% — e lia como página impressa. A referência do produto
+ * passou a ser a de ferramenta de fluxo, e as medidas abaixo saíram do n8n
+ * rodando, lidas do navegador, não de olho:
+ *
+ * | | n8n medido | aqui |
+ * |---|---|---|
+ * | fonte | InterVariable | Inter |
+ * | corpo | 16 px / 400 | 16 px / 400 |
+ * | pesos | 400 · 500 · 600 | idem — **nada de 800** |
+ * | título | 20 px / 600 | 24 px / 600 |
+ * | caixa-alta | nenhuma | nenhuma |
+ * | raio | 2 · 4 · 8 · 12 | idem |
+ * | cartão | raio 8 + sombra suave | idem |
+ * | régua | hsl(0 0% 88%) | idem |
+ * | espaço | rem, 0.125 → 16 | idem |
+ *
+ * **O que não veio junto.** O acento continua sendo o da marca: o símbolo do
+ * produto é um ponto focal em `#EC3013`, e trocá-lo por outro vermelho seria
+ * mudar a marca, não o layout. Ele entra na estrutura tonal do n8n (matiz fixo,
+ * escala de luminosidade), o que dá as variações claras que faltavam.
+ *
+ * **E o que continua proibido**, porque não é estética e sim requisito:
+ * severidade nunca é comunicada só por cor — toda etiqueta de estado carrega
+ * texto (RNF-USA-03) e continua legível em monocromático, porque o snapshot vai
+ * por e-mail e é impresso no relatório da obra (RNF-USA-04).
+ */
+
+/* ── Tipografia ───────────────────────────────────────────────────────────────
+ *
+ * Inter, a mesma do n8n, **embarcada e nunca buscada em runtime**: a RNF-POR-02
+ * prevê instalação air-gapped, e um `@import` do Google Fonts faria a interface
+ * esperar por um domínio inalcançável e cair na alternativa — em silêncio.
+ *
+ * Variável de 100 a 900 em duas fatias (`latin`, `latin-ext`); a vietnamita do
+ * Google ficou de fora. Licença SIL OFL 1.1, texto em `public/fonts/`.
+ */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/inter-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  /* ── Base ─────────────────────────────────────────────────────────────── */
+  --v-bg: hsl(0, 0%, 96%);
+  --v-surface: hsl(0, 0%, 100%);
+  --v-surface-2: hsl(0, 0%, 97.5%);
+  --v-ink: hsl(0, 0%, 17%);
+  --v-accent: hsl(9, 84%, 50%);
+
+  /* Escala do acento pela estrutura do n8n: matiz fixo, luminosidade variando.
+     Dá os tons claros de fundo e borda que o sistema anterior não tinha. */
+  --v-accent-100: hsl(9, 84%, 97%);
+  --v-accent-200: hsl(9, 84%, 93%);
+  --v-accent-300: hsl(9, 84%, 88%);
+  --v-accent-400: hsl(9, 84%, 75%);
+  --v-accent-500: hsl(9, 84%, 62%);
+  --v-accent-600: hsl(9, 84%, 50%);
+  --v-accent-700: hsl(9, 84%, 40%);
+  --v-accent-800: hsl(9, 84%, 30%);
+  --v-accent-900: hsl(9, 84%, 22%);
+
+  --v-neutral-100: hsl(0, 0%, 98%);
+  --v-neutral-200: hsl(0, 0%, 93%);
+  --v-neutral-300: hsl(0, 0%, 88%);
+  --v-neutral-400: hsl(0, 0%, 76%);
+  --v-neutral-500: hsl(0, 0%, 62%);
+  --v-neutral-600: hsl(0, 0%, 47%);
+  --v-neutral-700: hsl(0, 0%, 35%);
+  --v-neutral-800: hsl(0, 0%, 25%);
+  --v-neutral-900: hsl(0, 0%, 12%);
+
+  /* Hierarquia de texto: três níveis, como no n8n. */
+  --v-ink-60: hsl(0, 0%, 40%);
+  --v-ink-40: hsl(0, 0%, 55%);
+  --v-ink-07: hsl(0, 0%, 93%);
+
+  /* ── Estado ───────────────────────────────────────────────────────────── */
+  /* Severidade por intensidade + **rótulo textual sempre** (RNF-USA-03). */
+  --v-state-critical: var(--v-accent);
+  --v-state-warning: var(--v-accent-500);
+  --v-state-normal: var(--v-neutral-700);
+  --v-state-idle: var(--v-neutral-400);
+
+  /* Acento em corpo de texto precisa de contraste; o puro não tem. */
+  --v-accent-text: var(--v-accent-700);
+
+  /* ── Gramática ────────────────────────────────────────────────────────── */
+  /* Raio, que antes era proibido. A escala é a do n8n. */
+  --v-radius-sm: 2px;
+  --v-radius: 4px;
+  --v-radius-lg: 8px;
+  --v-radius-xl: 12px;
+
+  /* Profundidade por sombra, que antes era proibida. Suave de propósito: ela
+     separa camadas, não decora. */
+  --v-shadow-sm: 0 1px 2px hsl(9 20% 10% / 0.06);
+  --v-shadow: 0 2px 8px hsl(9 20% 10% / 0.1);
+  --v-shadow-lg: 0 8px 24px hsl(9 20% 10% / 0.12);
+
+  /* Réguas claras: a de tinta a 40% fechava a tela. */
+  --v-rule: hsl(0, 0%, 88%);
+  --v-rule-light: hsl(0, 0%, 93%);
+  --v-rule-strong: 1px;
+  --v-rule-hair: 1px;
+
+  /* ── Escala tipográfica ───────────────────────────────────────────────── */
+  --v-font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --v-font-mono: ui-monospace, SFMono-Regular, 'Cascadia Code', monospace;
+
+  --v-text-3xs: 0.625rem;
+  --v-text-2xs: 0.75rem;
+  --v-text-xs: 0.8125rem;
+  --v-text-sm: 0.875rem;
+  --v-text-md: 1rem;
+  --v-text-lg: 1.125rem;
+  --v-text-xl: 1.25rem;
+  --v-text-2xl: 1.5rem;
+  --v-text-3xl: 1.75rem;
+
+  --v-weight-regular: 400;
+  --v-weight-medium: 500;
+  --v-weight-bold: 600;
+
+  /* ── Escala de espaço ─────────────────────────────────────────────────── */
+  --v-space-5xs: 0.125rem;
+  --v-space-4xs: 0.25rem;
+  --v-space-3xs: 0.375rem;
+  --v-space-2xs: 0.5rem;
+  --v-space-xs: 0.75rem;
+  --v-space-sm: 1rem;
+  --v-space-md: 1.25rem;
+  --v-space-lg: 1.5rem;
+  --v-space-xl: 2rem;
+  --v-space-2xl: 3rem;
+
+  /*
+   * `--v-container` ficou como **medida de leitura**, não como largura de tela.
+   * O chrome é fluido (ver `AppLayout`); o que ainda precisa de limite é
+   * parágrafo corrido, e para isso a medida certa é em `ch`, que acompanha a
+   * fonte em vez de supor um tamanho dela.
+   */
+  --v-container: 1320px;
+  --v-prosa: 68ch;
+
+  /* A calha acompanha a janela em vez de saltar em breakpoint: 16 px no celular
+     e 40 px no monitor grande, sem degrau visível entre os dois. */
+  --v-gutter: clamp(1rem, 1.6vw, 2.5rem);
+
+  /*
+   * ── Série categórica ─────────────────────────────────────────────────────
+   *
+   * Contagem por **label** precisa de mais de uma cor: "pessoa" e "veículo" na
+   * mesma barra empilhada, na mesma tinta, seriam uma barra só. É o primeiro
+   * lugar da plataforma onde o matiz carrega significado, e por isso a escala
+   * não foi escolhida a olho — ela foi **medida**.
+   *
+   * A primeira tentativa foi óbvia e estava errada: alternar acento e neutros,
+   * usando só tokens que já existiam. Reprovou em tudo que importa — metade
+   * das faixas lia como cinza (croma abaixo do piso), e o par `neutro-500` ↔
+   * `acento-400` ficava a ΔE 5,0 sob protanopia, ou seja, **a mesma cor** para
+   * quem não distingue vermelho. Duas zonas viravam uma.
+   *
+   * A escala abaixo passa nos cinco testes, nos dois temas, contra as
+   * superfícies reais desta interface (`#FFF` no claro, `#262626` no escuro):
+   * faixa de luminosidade, piso de croma, separação sob daltonismo (pior par
+   * adjacente ΔE 9,1 claro / 8,4 escuro, alvo ≥ 8), piso de visão normal
+   * (ΔE 22,9 / 19,7, piso 15) e contraste contra a superfície.
+   *
+   * **A ordem é o mecanismo, não enfeite.** A separação é garantida entre
+   * fatias *vizinhas* da pilha; trocar dois slots de lugar desfaz a prova. O
+   * acento da marca abre a escala porque é ele que a plataforma inteira usa —
+   * a primeira label da primeira zona sai na cor do produto.
+   *
+   * **São sete, e o oitavo não existe de propósito.** Uma oitava cor teria de
+   * ser inventada entre as que já estão lá, e cairia abaixo do piso. A oitava
+   * label vira "outras" na tela — agrupar é honesto, inventar cor não é.
+   *
+   * **Isto não afrouxa a RNF-USA-03.** Cor aqui distingue categoria, que é
+   * nominal; severidade continua vindo de `--v-state-*` com rótulo textual. E
+   * três dos sete ficam abaixo de 3:1 contra o branco, o que obriga o alívio:
+   * toda série categórica da plataforma carrega legenda **e** o número escrito
+   * ao lado, **e** a mesma informação em tabela. Em monocromático a pilha vira
+   * escala de cinza e os números continuam dizendo o que é (RNF-USA-04 — o
+   * relatório impresso da obra).
+   */
+  --v-cat-1: #eb3514;  /* acento da marca */
+  --v-cat-2: #2a78d6;
+  --v-cat-3: #1baf7a;
+  --v-cat-4: #eda100;
+  --v-cat-5: #4a3aa7;
+  --v-cat-6: #e87ba4;
+  --v-cat-7: #008300;
+  /* A oitava categoria e as seguintes, agrupadas em "outras". */
+  --v-cat-outras: var(--v-neutral-500);
+}
+
+/* Tema escuro (RF-UIX-04): vigilância noturna. Inverte tinta e fundo mantendo
+   o mesmo acento — e as mesmas regras de estado com rótulo textual. */
+:root[data-theme='dark'] {
+  --v-bg: hsl(0, 0%, 11%);
+  --v-surface: hsl(0, 0%, 15%);
+  --v-surface-2: hsl(0, 0%, 13%);
+  --v-ink: hsl(0, 0%, 95%);
+  --v-ink-60: hsl(0, 0%, 68%);
+  --v-ink-40: hsl(0, 0%, 52%);
+  --v-ink-07: hsl(0, 0%, 18%);
+  --v-rule: hsl(0, 0%, 25%);
+  --v-rule-light: hsl(0, 0%, 20%);
+  --v-accent-text: var(--v-accent-400);
+  --v-state-normal: var(--v-neutral-400);
+  --v-state-idle: var(--v-neutral-600);
+  --v-shadow-sm: 0 1px 2px hsl(0 0% 0% / 0.3);
+  --v-shadow: 0 2px 8px hsl(0 0% 0% / 0.4);
+  --v-shadow-lg: 0 8px 24px hsl(0 0% 0% / 0.5);
+
+  /*
+   * Os **mesmos sete matizes**, repisados para a superfície escura — e não o
+   * claro invertido. Uma inversão automática joga metade da escala para fora
+   * da faixa de luminosidade do tema escuro: o amarelo estoura e o violeta
+   * some no fundo. Estes passos foram validados como conjunto contra
+   * `#262626`, e aqui todos os sete cruzam 3:1 (no claro, três não cruzam).
+   */
+  --v-cat-1: #ef5d43;
+  --v-cat-2: #3987e5;
+  --v-cat-3: #199e70;
+  --v-cat-4: #c98500;
+  --v-cat-5: #9085e9;
+  --v-cat-6: #d55181;
+  --v-cat-7: #008300;
+  --v-cat-outras: var(--v-neutral-500);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--v-font);
+  /* `optimizeLegibility` deixa a Inter com o kerning que o n8n mostra. */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  font-size: var(--v-text-md);
+  line-height: 1.5;
+  color: var(--v-ink);
+  background: var(--v-bg);
+}
+
+a {
+  color: var(--v-accent-text);
+  text-decoration: none;
+}
+
+a:hover { text-decoration: underline; }
+
+:focus-visible {
+  outline: 2px solid var(--v-accent);
+  outline-offset: 2px;
+  border-radius: var(--v-radius-sm);
+}
+
+/* ── Tipografia ───────────────────────────────────────────────────────────── */
+/*
+ * A escala encolheu junto com o peso. O display de 42 px/800 e o título de
+ * 32 px/800 eram de página impressa; numa ferramenta que se usa o dia inteiro,
+ * o título compete com o conteúdo. O n8n titula em 20 px/600.
+ */
+.v-display {
+  font-size: var(--v-text-3xl);
+  line-height: 1.2;
+  font-weight: var(--v-weight-bold);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.v-title {
+  font-size: var(--v-text-2xl);
+  line-height: 1.25;
+  font-weight: var(--v-weight-bold);
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+.v-subtitle {
+  font-size: var(--v-text-lg);
+  line-height: 1.35;
+  font-weight: var(--v-weight-bold);
+  margin: 0;
+}
+
+.v-metric {
+  font-size: var(--v-text-3xl);
+  line-height: 1.15;
+  font-weight: var(--v-weight-bold);
+  letter-spacing: -0.02em;
+}
+
+/*
+ * O rótulo perdeu a caixa-alta e o tracking de 0.08em — eram a assinatura do
+ * sistema anterior e a coisa que mais o afastava da referência. O n8n não tem
+ * `text-transform` em lugar nenhum: hierarquia vem de tamanho e de cor.
+ */
+.v-label {
+  font-size: var(--v-text-2xs);
+  font-weight: var(--v-weight-medium);
+  color: var(--v-ink-60);
+}
+
+/* Label + `VFieldHint`, lado a lado. Global pelo mesmo motivo do `.v-form-grid`:
+   é layout, não estilo de um componente, e `<style scoped>` de uma tela não
+   alcança a próxima. */
+.v-label-row { display: flex; align-items: center; gap: var(--v-space-5xs); }
+
+.v-muted { color: var(--v-ink-60); }
+
+/*
+ * A explicação de um campo, logo abaixo dele.
+ *
+ * Global porque a pergunta "o que é IoU?" aparece em teste de inferência, em
+ * cadastro de modelo e em zona — três telas que não compartilham estilo, e que
+ * vinham cada uma declarando o seu `.hint` com a mesma regra.
+ *
+ * **Texto abaixo do campo, e não `title` no rótulo.** Um balão de passar o
+ * mouse não existe em toque, e esta interface é lida em pé, em obra, por
+ * operador que não usa o sistema todo dia (RF-UIX-08). O que só aparece no
+ * hover, para essa pessoa, não existe.
+ */
+.v-hint {
+  font-size: var(--v-text-2xs);
+  color: var(--v-ink-60);
+  margin: var(--v-space-4xs) 0 0;
+  max-width: var(--v-prosa);
+}
+
+.v-mono {
+  font-family: var(--v-font-mono);
+  font-size: var(--v-text-xs);
+}
+
+/* ── Gramática de blocos ──────────────────────────────────────────────────── */
+/*
+ * O bloco era uma moldura de 2 px em tinta cheia — desenho de caixa impressa.
+ * Agora é superfície branca sobre fundo cinza, com régua clara e sombra suave:
+ * a profundidade vem da camada, que é como a referência separa as coisas.
+ */
+.v-block {
+  background: var(--v-surface);
+  border: 1px solid var(--v-rule);
+  border-radius: var(--v-radius-lg);
+  box-shadow: var(--v-shadow-sm);
+}
+
+.v-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--v-space-xs);
+  padding: var(--v-space-xs) var(--v-space-sm);
+  border-bottom: 1px solid var(--v-rule-light);
+}
+
+.v-block__body { padding: var(--v-space-sm); }
+
+.v-divider { border-top: 1px solid var(--v-rule-light); }
+
+/*
+ * Limite de **medida de leitura**, aplicado ao parágrafo e não à tela. É o que
+ * sobrou do contêiner centrado: texto corrido continua protegido de linha longa
+ * demais, e vídeo, grafo, tabela e série seguem usando a largura toda.
+ */
+.v-prosa { max-width: var(--v-prosa); }
+
+/* ── Cabeçalho de tela ─────────────────────────────────────────────────────── */
+.v-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--v-space-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--v-space-md);
+}
+
+.v-head__texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.v-head__acoes {
+  display: flex;
+  align-items: center;
+  gap: var(--v-space-2xs);
+  flex-wrap: wrap;
+}
+
+/* ── Faixa de indicadores ──────────────────────────────────────────────────── */
+/*
+ * As três faixas vivem no pai, não em cada cartão: grade por cartão alinha as
+ * linhas dentro dele e não entre eles, e o rótulo de duas linhas empurrava só o
+ * seu número para baixo.
+ */
+.v-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-rows: auto 1fr auto;
+  gap: var(--v-space-xs);
+  margin-bottom: var(--v-space-md);
+}
+
+.v-kpi {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  gap: var(--v-space-4xs);
+  padding: var(--v-space-sm);
+  background: var(--v-surface);
+  border: 1px solid var(--v-rule);
+  border-radius: var(--v-radius-lg);
+  box-shadow: var(--v-shadow-sm);
+}
+
+.v-kpi__valor {
+  align-self: end;
+  font-size: var(--v-text-3xl);
+  font-weight: var(--v-weight-bold);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.v-kpi__valor small {
+  font-size: var(--v-text-lg);
+  font-weight: var(--v-weight-medium);
+  color: var(--v-ink-40);
+}
+
+/* ── Barra de ferramentas de lista ─────────────────────────────────────────── */
+.v-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--v-space-2xs);
+  flex-wrap: wrap;
+  margin-bottom: var(--v-space-sm);
+}
+
+.v-toolbar__campo { flex: 1; min-width: 200px; max-width: 420px; }
+
+/* ── Abas ───────────────────────────────────────────────────────────────────
+ *
+ * A tela de detalhe empilhava seis blocos numa rolagem só, e a consequência não
+ * era estética: quem entra para mudar o FPS passa por zonas, regras e histórico
+ * antes de achar o campo, e quem entra para olhar a contagem rola por dois
+ * formulários que não vai tocar. A aba separa **o que se faz** de **o que se
+ * olha**, e o rótulo diz qual é qual antes do clique.
+ *
+ * A fita gruda no topo ao rolar: em aba com conteúdo alto — o grafo da regra, a
+ * grade de zonas — perder a fita de vista é perder o caminho de volta.
+ *
+ * Em tela estreita ela rola na horizontal em vez de quebrar em duas linhas:
+ * fita de altura variável move o conteúdo de lugar a cada troca de aba.
+ */
+.v-tabs {
+  display: flex;
+  gap: var(--v-space-sm);
+  margin-bottom: var(--v-space-sm);
+  border-bottom: 1px solid var(--v-rule);
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--v-bg);
+}
+
+.v-tabs::-webkit-scrollbar { display: none; }
+
+/*
+ * Barra de rolagem no tom do tema, para quando a rolagem **é** a affordance
+ * (uma tabela larga, por exemplo) — ao contrário da fita de abas acima, que
+ * some de propósito. Sem isto o navegador desenha a barra do sistema, branca
+ * mesmo no tema escuro, riscando a superfície.
+ */
+.v-scroll { scrollbar-width: thin; scrollbar-color: var(--v-ink-40) transparent; }
+
+.v-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.v-scroll::-webkit-scrollbar-track { background: transparent; }
+
+.v-scroll::-webkit-scrollbar-thumb {
+  background: var(--v-ink-40);
+  border-radius: var(--v-radius-sm);
+}
+
+.v-scroll::-webkit-scrollbar-thumb:hover { background: var(--v-ink-60); }
+
+.v-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v-space-4xs);
+  flex: none;
+  padding: var(--v-space-2xs) 0;
+  font: inherit;
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-weight-medium);
+  color: var(--v-ink-60);
+  white-space: nowrap;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+
+.v-tab:hover { color: var(--v-ink); }
+.v-tab--on { color: var(--v-accent-text); border-bottom-color: var(--v-accent); }
+
+/*
+ * Quantos itens a aba guarda, visível sem entrar nela. "Regras" e "Regras · 3"
+ * levam a decisões diferentes sobre clicar, e o zero é dito com o mesmo
+ * destaque do resto — é ele que revela o pipeline que detecta e não avisa
+ * ninguém.
+ */
+.v-tab__conta {
+  padding: 0 var(--v-space-4xs);
+  font-size: var(--v-text-3xs);
+  font-weight: var(--v-weight-medium);
+  color: var(--v-ink-60);
+  background: var(--v-ink-07);
+  border-radius: var(--v-radius-sm);
+}
+
+.v-tab--on .v-tab__conta { color: var(--v-accent-text); background: var(--v-accent-200); }
+
+/* ── Tabela ────────────────────────────────────────────────────────────────── */
+.v-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--v-text-sm);
+}
+
+.v-table th,
+.v-table td {
+  text-align: left;
+  padding: var(--v-space-xs) var(--v-space-sm);
+  border-bottom: 1px solid var(--v-rule-light);
+  vertical-align: middle;
+}
+
+.v-table th {
+  font-size: var(--v-text-2xs);
+  font-weight: var(--v-weight-medium);
+  color: var(--v-ink-60);
+  white-space: nowrap;
+}
+
+.v-table tbody tr:last-child td { border-bottom: 0; }
+.v-table tbody tr:hover td { background: var(--v-surface-2); }
+
+.v-table__nome { font-weight: var(--v-weight-medium); }
+
+.v-table__acoes {
+  display: flex;
+  gap: var(--v-space-4xs);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* No `<td>` a célula precisa continuar célula: com `display: flex` ela sai do
+   modelo de tabela, perde a borda da linha (o traço parava antes da coluna de
+   ações) e deixa de alinhar pela altura da linha. O espaçamento entre os
+   botões passa a vir da margem. */
+.v-table td.v-table__acoes {
+  display: table-cell;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.v-table td.v-table__acoes > * + * { margin-left: var(--v-space-4xs); }
+
+.v-table td.v-table__vazio,
+.v-table__vazio {
+  padding: var(--v-space-xl) var(--v-space-sm);
+  text-align: center;
+  color: var(--v-ink-60);
+}
+
+/* ── Aviso de tela ─────────────────────────────────────────────────────────── */
+.v-banner {
+  margin: 0 0 var(--v-space-sm);
+  padding: var(--v-space-2xs) var(--v-space-xs);
+  font-size: var(--v-text-sm);
+  background: var(--v-surface-2);
+  border: 1px solid var(--v-rule);
+  border-left: 3px solid var(--v-neutral-400);
+  border-radius: var(--v-radius);
+}
+
+.v-banner--error {
+  color: var(--v-accent-text);
+  background: var(--v-accent-100);
+  border-color: var(--v-accent-300);
+  border-left-color: var(--v-accent);
+}
+
+/* ── Grade de formulário ──────────────────────────────────────────────────── */
+/*
+ * Cada tela de cadastro reinventava `.grid`/`.span2` com contagem de coluna e
+ * significado de "span" diferentes (4 fixas em Modelos, auto-fit em Câmeras e
+ * Pipelines) — o mesmo espaço lia com proporção diferente em cada tela. Global
+ * porque `<style scoped>` de um componente não alcança outro: é a mesma razão
+ * pela qual `.small` do `VPaginador` não fazia nada (ver histórico do
+ * componente) — só uma classe fora do escopo do componente resolve de vez.
+ */
+/*
+ * `auto-fit`, e não um número fixo de colunas: com o chrome fluido (`AppLayout`
+ * não limita largura), `repeat(4, 1fr)` num monitor de 2560 px dava campo de
+ * 600 px — rótulo de um lado, cursor do outro, nada no meio. `auto-fit` também
+ * dispensa `@media`: a coluna que não cabe mais some sozinha.
+ */
+.v-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--v-space-sm);
+}
+
+.v-span-2 { grid-column: span 2; }
+.v-span-3 { grid-column: span 3; }
+/* `1 / -1`, e não `span 4`: sem número fixo de colunas, um `span` maior do que
+   as que existem cria coluna implícita extra e estoura a largura do bloco. */
+.v-span-4 { grid-column: 1 / -1; }
+
+/* ── Controles ────────────────────────────────────────────────────────────── */
+.v-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v-space-4xs);
+}
+
+.v-input,
+.v-select {
+  width: 100%;
+  padding: var(--v-space-2xs) var(--v-space-xs);
+  font: inherit;
+  font-size: var(--v-text-sm);
+  color: var(--v-ink);
+  background: var(--v-surface);
+  border: 1px solid var(--v-rule);
+  border-radius: var(--v-radius);
+}
+
+.v-input::placeholder { color: var(--v-ink-40); }
+
+.v-input:focus,
+.v-select:focus {
+  border-color: var(--v-accent);
+  outline: 3px solid var(--v-accent-200);
+  outline-offset: 0;
+}
+
+.v-input[aria-invalid='true'] { border-color: var(--v-accent); }
+
+/*
+ * O botão perdeu a caixa-alta e o peso 800. `min-height: 36px` continua sendo
+ * alvo confortável em campo, e é o tamanho que a referência usa.
+ */
+.v-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v-space-2xs);
+  min-height: 36px;
+  padding: 0 var(--v-space-xs);
+  font: inherit;
+  font-size: var(--v-text-sm);
+  font-weight: var(--v-weight-medium);
+  color: var(--v-surface);
+  background: var(--v-accent);
+  border: 1px solid var(--v-accent);
+  border-radius: var(--v-radius);
+  cursor: pointer;
+}
+
+/*
+ * `text-decoration: none` aqui, e não só no `.v-button` de repouso: a regra
+ * global `a:hover { text-decoration: underline }` (especificidade elemento+
+ * pseudo-classe) vence a `.v-button` de repouso (só uma classe) assim que o
+ * botão é um `<RouterLink>`/`<a>` — em repouso os dois ficam idênticos, mas
+ * ao passar o mouse o link ganhava sublinhado e lia como hyperlink, não como
+ * botão (achado do usuário: "Nova câmera" parecia link, "Novo dataset" não —
+ * a diferença era `<a>` vs `<button>`, não a tela). `:hover:not(:disabled)`
+ * já é mais específico que `a:hover` sozinho, então basta declarar aqui.
+ */
+.v-button:hover:not(:disabled) {
+  background: var(--v-accent-700);
+  border-color: var(--v-accent-700);
+  text-decoration: none;
+}
+
+.v-button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.v-button--ghost {
+  color: var(--v-ink);
+  background: var(--v-surface);
+  border-color: var(--v-rule);
+}
+
+.v-button--ghost:hover:not(:disabled) {
+  color: var(--v-accent-text);
+  background: var(--v-surface-2);
+  border-color: var(--v-accent-400);
+}
+
+.v-button--accent {
+  color: var(--v-surface);
+  background: var(--v-accent);
+  border-color: var(--v-accent);
+}
+
+.v-button--small {
+  min-height: 28px;
+  padding: 0 var(--v-space-2xs);
+  font-size: var(--v-text-2xs);
+}
+
+/* ── Estado ───────────────────────────────────────────────────────────────── */
+/*
+ * **Cor sozinha nunca comunica severidade** (RNF-USA-03): a etiqueta carrega o
+ * texto, e o ponto à esquerda usa `currentColor` — em preto e branco ele vira
+ * um ponto cinza e o texto continua dizendo o que é. É o que mantém o snapshot
+ * legível quando vai por e-mail ou é impresso no relatório (RNF-USA-04).
+ */
+.v-state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v-space-4xs);
+  font-size: var(--v-text-2xs);
+  font-weight: var(--v-weight-medium);
+}
+
+.v-state::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.v-state--critical { color: var(--v-state-critical); }
+.v-state--warning { color: var(--v-state-warning); }
+.v-state--normal { color: var(--v-state-normal); }
+.v-state--idle { color: var(--v-state-idle); }
