@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.debugpy",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+    "vue.volar",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "vitest.explorer",
+    "ms-playwright.playwright",
+    "ms-azuretools.vscode-docker",
+    "mikestead.dotenv"
+  ]
+}

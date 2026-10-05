@@ -1,0 +1,77 @@
+# MINI-CRM — stack Docker (SPEC §13).
+#
+# Mesmo arranjo do Vision.AI: um compose só para desenvolvimento e produção.
+#   docker compose up -d --wait database        → só o banco (o depurador roda a API no host)
+#   docker compose up -d --build --wait         → stack completo, como em produção (:8080)
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build --wait database backend
+#                                               → backend em container com debugpy (:5679)
+#
+# O banco é publicado só em 127.0.0.1 (porta 3434) para o depurador e o psql do
+# host alcançarem-no; nada fica exposto na rede. Em servidor, remova `ports` do
+# serviço `database` se não houver acesso administrativo local.
+
+name: minicrm
+
+services:
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-minicrm}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-minicrm}
+      POSTGRES_DB: ${POSTGRES_DB:-minicrm}
+    ports: ['127.0.0.1:${DB_PORT:-3434}:5432']
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      # Cria o banco de testes (minicrm_test). Só roda num volume novo.
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-minicrm} -d ${POSTGRES_DB:-minicrm}']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [backend_net]
+
+  backend:
+    build:
+      context: ./backend
+      target: prod
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-minicrm}:${POSTGRES_PASSWORD:-minicrm}@database:5432/${POSTGRES_DB:-minicrm}
+    depends_on:
+      database: { condition: service_healthy }
+    expose: ['8000']
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    networks: [backend_net]
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    expose: ['80']
+    networks: [backend_net]
+
+  proxy:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports: ['${HTTP_PORT:-8080}:80']
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      backend: { condition: service_healthy }
+      frontend: { condition: service_started }
+    networks: [backend_net]
+
+volumes:
+  db_data:
+
+networks:
+  backend_net:

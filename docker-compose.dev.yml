@@ -1,0 +1,43 @@
+# MINI-CRM — sobreposição de desenvolvimento: backend em container com debugpy.
+#
+# Use quando quiser depurar a API exatamente como ela roda no container
+# (bibliotecas nativas do WeasyPrint, Python 3.12 da imagem). Para o dia a dia,
+# prefira o depurador no host ("API: FastAPI (com docker)" no launch.json).
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build --wait database backend
+#   → API em http://localhost:3300 e debugpy em localhost:5679
+#     (configuração "Anexar: backend em container").
+#
+# Sem --reload de propósito: o recarregador cria um processo filho ao qual o
+# debugpy não se prende. Depois de alterar código: `docker compose restart backend`.
+
+services:
+  backend:
+    build:
+      context: ./backend
+      target: dev
+    command:
+      - python
+      - -m
+      - debugpy
+      - --listen
+      - 0.0.0.0:5678
+      - -m
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - '8000'
+    environment:
+      APP_ENV: development
+      LOG_LEVEL: DEBUG
+      JWT_SECRET: dev-jwt-secret-trocar-em-producao-0123456789
+      CORS_ORIGINS: http://localhost:3100
+      COOKIE_SECURE: 'false'
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/migrations:/app/migrations
+    ports:
+      - '127.0.0.1:3300:8000'
+      - '127.0.0.1:5679:5678'

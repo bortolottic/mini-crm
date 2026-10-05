@@ -1,0 +1,201 @@
+{
+  // MINI-CRM — configurações de depuração.
+  //
+  // Padrão POSIX do venv (`.venv/bin/python`) com `windows` sobrescrevendo só o
+  // interpretador. Num clone novo, rode antes a tarefa `setup: tudo`.
+  //
+  // Variáveis de ambiente: .vscode/dev.env (valores SÓ de desenvolvimento,
+  // coerentes com o docker-compose.yml). Nunca coloque credencial real ali.
+  "version": "0.2.0",
+
+  "inputs": [
+    {
+      "id": "adminPassword",
+      "type": "promptString",
+      "description": "Senha do Admin inicial (mín. 10 caracteres, letra e número)",
+      "password": true
+    }
+  ],
+
+  "configurations": [
+    // ── API ─────────────────────────────────────────────────────────────────
+    {
+      "name": "API: FastAPI (com docker)",
+      "detail": "Sobe o banco, aplica migrações e depura a API em :3300.",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/backend",
+      "preLaunchTask": "banco: aplicar migrações",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "python": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      // Sem --reload de propósito: o recarregador cria um processo filho ao
+      // qual o depurador não se prende, e os breakpoints param de funcionar.
+      "args": ["app.main:app", "--host", "0.0.0.0", "--port", "3300"],
+      "envFile": "${workspaceFolder}/.vscode/dev.env",
+      "justMyCode": false,
+      "presentation": { "group": "01-api", "order": 1 }
+    },
+    {
+      "name": "API: FastAPI (sem docker)",
+      "detail": "Para quando o banco já está no ar e você não quer esperar o compose.",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/backend",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "python": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": ["app.main:app", "--host", "0.0.0.0", "--port", "3300"],
+      "envFile": "${workspaceFolder}/.vscode/dev.env",
+      "justMyCode": false,
+      "presentation": { "group": "01-api", "order": 2 }
+    },
+
+    // ── Banco ───────────────────────────────────────────────────────────────
+    {
+      "name": "Banco: aplicar migrações",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "alembic",
+      "args": ["upgrade", "head"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/backend",
+      "preLaunchTask": "docker: subir banco",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "python": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "envFile": "${workspaceFolder}/.vscode/dev.env",
+      "justMyCode": false,
+      "presentation": { "group": "02-banco", "order": 1 }
+    },
+    {
+      "name": "Banco: carga inicial (seed)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "app.seed",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/backend",
+      "preLaunchTask": "banco: aplicar migrações",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "python": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "envFile": "${workspaceFolder}/.vscode/dev.env",
+      "env": { "ADMIN_PASSWORD": "${input:adminPassword}" },
+      "justMyCode": false,
+      "presentation": { "group": "02-banco", "order": 2 }
+    },
+
+    // ── Testes ──────────────────────────────────────────────────────────────
+    {
+      "name": "pytest: suíte completa",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests", "-v", "--tb=short"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/backend",
+      "preLaunchTask": "docker: subir banco",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "python": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "envFile": "${workspaceFolder}/.vscode/dev.env",
+      "env": {
+        "APP_ENV": "test",
+        "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm_test"
+      },
+      "justMyCode": false,
+      "presentation": { "group": "03-testes", "order": 1 }
+    },
+    {
+      "name": "pytest: unitários",
+      "detail": "Sem banco, sem Docker.",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests/unit", "-v", "--tb=short"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/backend",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "python": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "env": { "APP_ENV": "test" },
+      "justMyCode": false,
+      "presentation": { "group": "03-testes", "order": 2 }
+    },
+    {
+      "name": "pytest: arquivo atual",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["${file}", "-v", "--tb=short"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/backend",
+      "preLaunchTask": "docker: subir banco",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "python": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "envFile": "${workspaceFolder}/.vscode/dev.env",
+      "env": {
+        "APP_ENV": "test",
+        "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm_test"
+      },
+      "justMyCode": false,
+      "presentation": { "group": "03-testes", "order": 3 }
+    },
+
+    // ── Interface ───────────────────────────────────────────────────────────
+    {
+      "name": "Web: Chrome (:3100)",
+      "detail": "Sobe o Vite e abre o navegador com o depurador do frontend acoplado.",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3100",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "preLaunchTask": "web: subir dev server",
+      "sourceMapPathOverrides": { "/src/*": "${workspaceFolder}/frontend/src/*" },
+      "presentation": { "group": "04-web", "order": 1 }
+    },
+    {
+      "name": "Web: Edge (:3100)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://localhost:3100",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "preLaunchTask": "web: subir dev server",
+      "sourceMapPathOverrides": { "/src/*": "${workspaceFolder}/frontend/src/*" },
+      "presentation": { "group": "04-web", "order": 2 }
+    },
+    {
+      "name": "Web: Vitest (arquivo atual)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/frontend",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vitest", "run", "${relativeFile}"],
+      "console": "integratedTerminal",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "presentation": { "group": "04-web", "order": 3 }
+    },
+
+    // ── Anexar ──────────────────────────────────────────────────────────────
+    {
+      "name": "Anexar: backend em container",
+      "detail": "Depura a API rodando no compose. Rode antes a tarefa 'docker: subir backend em container (debugpy)'.",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": { "host": "localhost", "port": 5679 },
+      "pathMappings": [
+        { "localRoot": "${workspaceFolder}/backend/app", "remoteRoot": "/app/app" }
+      ],
+      "justMyCode": false,
+      "presentation": { "group": "05-anexar", "order": 1 }
+    }
+  ],
+
+  "compounds": [
+    {
+      "name": "Tudo: API + Web",
+      "configurations": ["API: FastAPI (com docker)", "Web: Chrome (:3100)"],
+      "stopAll": true,
+      "presentation": { "group": "00-tudo", "order": 1 }
+    }
+  ]
+}

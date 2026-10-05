@@ -1,0 +1,442 @@
+{
+  // MINI-CRM — tarefas de desenvolvimento.
+  //
+  // Mesmo padrão do Vision.AI / ProAgentHub:
+  //  - a infra sobe pelo docker-compose.yml do repositório (uma fonte só para dev e produção);
+  //  - a tarefa de docker é o `preLaunchTask` do depurador;
+  //  - um rótulo por tarefa, com `windows` sobrescrevendo só o caminho do interpretador.
+  //
+  // Portas: banco 3434 · API no host 3300 · Vite 3100 · stack completo (proxy) 8080 · debugpy em container 5679.
+  //
+  // Tarefas não aceitam `envFile`; por isso as variáveis Python aparecem abaixo.
+  // Elas DEVEM bater com .vscode/dev.env (usado pelo launch.json e pela descoberta de testes).
+  "version": "2.0.0",
+
+  "inputs": [
+    {
+      "id": "adminPassword",
+      "type": "promptString",
+      "description": "Senha do Admin inicial (mín. 10 caracteres, letra e número)",
+      "password": true
+    },
+    {
+      "id": "migrationMessage",
+      "type": "promptString",
+      "description": "Descrição da migração (ex.: create contacts)"
+    }
+  ],
+
+  "tasks": [
+    // ── Docker ──────────────────────────────────────────────────────────────
+    {
+      "label": "docker: subir banco",
+      "detail": "Sobe só o PostgreSQL (127.0.0.1:3434) e ESPERA ficar saudável. É o preLaunchTask do depurador.",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "up", "-d", "--wait", "database"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "silent", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker: subir stack completo",
+      "detail": "Banco + backend + frontend + proxy, como em produção, em http://localhost:8080. Lê o .env (opcional).",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "up", "-d", "--build", "--wait"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker: subir backend em container (debugpy)",
+      "detail": "Banco + backend com debugpy em :5679 e API em :3300. Depois use 'Anexar: backend em container'.",
+      "type": "shell",
+      "command": "docker",
+      "args": [
+        "compose", "-f", "docker-compose.yml", "-f", "docker-compose.dev.yml",
+        "up", "-d", "--build", "--wait", "database", "backend"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker: reiniciar backend",
+      "detail": "Recarrega o código do backend em container (o modo debugpy roda sem --reload).",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "restart", "backend"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker: estado dos serviços",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "ps"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker: logs do backend",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "logs", "-f", "--tail", "200", "backend"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated" }
+    },
+    {
+      "label": "docker: parar stack",
+      "detail": "Para os containers mantendo os dados.",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "stop"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker: derrubar stack",
+      "detail": "Remove os containers. O volume do banco é preservado.",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "down"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker: derrubar stack e APAGAR os dados",
+      "detail": "DESTRUTIVO: remove containers e o volume do banco (minicrm e minicrm_test).",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "down", "-v"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+
+    // ── Banco ───────────────────────────────────────────────────────────────
+    {
+      "label": "banco: aplicar migrações",
+      "detail": "alembic upgrade head contra o Postgres local. Idempotente.",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "command": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": ["-m", "alembic", "upgrade", "head"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend",
+        "env": {
+          "APP_ENV": "development",
+          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm",
+          "JWT_SECRET": "dev-jwt-secret-trocar-em-producao-0123456789"
+        }
+      },
+      "dependsOn": ["docker: subir banco"],
+      "problemMatcher": []
+    },
+    {
+      "label": "banco: nova migração (autogenerate)",
+      "detail": "Gera uma revisão do Alembic a partir dos models. REVISE o arquivo gerado antes de commitar.",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "command": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": ["-m", "alembic", "revision", "--autogenerate", "-m", "${input:migrationMessage}"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend",
+        "env": {
+          "APP_ENV": "development",
+          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm",
+          "JWT_SECRET": "dev-jwt-secret-trocar-em-producao-0123456789"
+        }
+      },
+      "dependsOn": ["banco: aplicar migrações"],
+      "problemMatcher": []
+    },
+    {
+      "label": "banco: reverter última migração",
+      "detail": "alembic downgrade -1. Usado para validar que toda migração é reversível (SPEC §4).",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "command": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": ["-m", "alembic", "downgrade", "-1"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend",
+        "env": {
+          "APP_ENV": "development",
+          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm",
+          "JWT_SECRET": "dev-jwt-secret-trocar-em-producao-0123456789"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "banco: carga inicial (seed)",
+      "detail": "Cria o Admin inicial, pipeline padrão, origens, motivos de perda e settings. Pede a senha; nada fica gravado.",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "command": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": ["-m", "app.seed"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend",
+        "env": {
+          "APP_ENV": "development",
+          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm",
+          "JWT_SECRET": "dev-jwt-secret-trocar-em-producao-0123456789",
+          "ADMIN_NAME": "Administrador",
+          "ADMIN_EMAIL": "admin@minicrm.local",
+          "ADMIN_PASSWORD": "${input:adminPassword}"
+        }
+      },
+      "dependsOn": ["banco: aplicar migrações"],
+      "problemMatcher": []
+    },
+    {
+      "label": "banco: massa de demonstração (50k/10k)",
+      "detail": "scripts/seed_demo.py — volume para validar p95 das listagens (SPEC §12.4). Não rode em produção.",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "command": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": ["-m", "scripts.seed_demo", "--contacts", "50000", "--opportunities", "10000"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend",
+        "env": {
+          "APP_ENV": "development",
+          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm",
+          "JWT_SECRET": "dev-jwt-secret-trocar-em-producao-0123456789"
+        }
+      },
+      "dependsOn": ["banco: aplicar migrações"],
+      "problemMatcher": []
+    },
+    {
+      "label": "banco: psql",
+      "detail": "Abre um psql no container do banco.",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "exec", "database", "psql", "-U", "minicrm", "-d", "minicrm"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "focus": true }
+    },
+
+    // ── Serviços em desenvolvimento ─────────────────────────────────────────
+    {
+      "label": "api: subir servidor",
+      "detail": "API em :3300 com recarga automática, SEM depurador. Para depurar, use o launch 'API: FastAPI (com docker)'.",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "command": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": [
+        "-m", "uvicorn", "app.main:app",
+        "--host", "0.0.0.0", "--port", "3300", "--reload",
+        "--env-file", "${workspaceFolder}/.vscode/dev.env"
+      ],
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "dependsOn": ["banco: aplicar migrações"],
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": [{ "regexp": ".", "file": 1, "location": 2, "message": 3 }],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Started server process.*|.*Will watch for changes.*",
+          "endsPattern": ".*Application startup complete.*"
+        }
+      },
+      "presentation": { "panel": "dedicated" }
+    },
+    {
+      "label": "web: subir dev server",
+      "detail": "Vite em :3100, com proxy de /api para :3300.",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev"],
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": [{ "regexp": ".", "file": 1, "location": 2, "message": 3 }],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*VITE.*|.*vite.*",
+          "endsPattern": ".*ready in.*|.*Local:.*"
+        }
+      },
+      "presentation": { "panel": "dedicated" }
+    },
+    {
+      "label": "dev: subir tudo",
+      "detail": "Banco (docker) + API (:3300, reload) + Vite (:3100), sem depurador.",
+      "dependsOn": ["api: subir servidor", "web: subir dev server"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    },
+    {
+      "label": "api: health",
+      "detail": "Confere se a API no host responde.",
+      "type": "shell",
+      "command": "curl",
+      "args": ["-fsS", "http://localhost:3300/api/v1/health"],
+      "problemMatcher": []
+    },
+
+    // ── Qualidade ───────────────────────────────────────────────────────────
+    {
+      "label": "backend: lint (ruff)",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "command": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": ["-m", "ruff", "check", "."],
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "backend: formatar (ruff format)",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "command": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": ["-m", "ruff", "format", "."],
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "backend: type-check (mypy)",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "command": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": ["-m", "mypy", "app"],
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "web: lint",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "lint"],
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "web: build",
+      "detail": "Portão do frontend: lint de design + vue-tsc + vite build.",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "build"],
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "group": "build",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "qualidade: tudo",
+      "detail": "O mesmo portão do CI: lint, type-check, testes e build.",
+      "dependsOn": [
+        "backend: lint (ruff)",
+        "backend: type-check (mypy)",
+        "testes: backend (suíte completa)",
+        "web: lint",
+        "testes: web (vitest)",
+        "web: build"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+
+    // ── Testes ──────────────────────────────────────────────────────────────
+    {
+      "label": "testes: backend (suíte completa)",
+      "detail": "Unit + integração + API contra minicrm_test (Postgres real) com cobertura.",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "command": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": ["-m", "pytest", "-q", "--cov=app", "--cov-report=term-missing"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend",
+        "env": {
+          "APP_ENV": "test",
+          "DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm_test",
+          "TEST_DATABASE_URL": "postgresql+psycopg://minicrm:minicrm@localhost:3434/minicrm_test",
+          "JWT_SECRET": "test-jwt-secret-0123456789-0123456789"
+        }
+      },
+      "dependsOn": ["docker: subir banco"],
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "testes: backend (unitários)",
+      "detail": "Só tests/unit — sem banco, sem Docker.",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "command": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": ["-m", "pytest", "tests/unit", "-q"],
+      "options": { "cwd": "${workspaceFolder}/backend", "env": { "APP_ENV": "test" } },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "testes: web (vitest)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test", "--", "--run"],
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "testes: e2e (playwright)",
+      "detail": "Fluxo principal Lead → Cliente (SPEC §15). Exige o stack completo em :8080.",
+      "type": "shell",
+      "command": "npx",
+      "args": ["playwright", "test"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend",
+        "env": { "E2E_BASE_URL": "http://localhost:8080" }
+      },
+      "dependsOn": ["docker: subir stack completo"],
+      "group": "test",
+      "problemMatcher": []
+    },
+
+    // ── Ambiente ────────────────────────────────────────────────────────────
+    {
+      "label": "setup: criar ambiente Python (.venv)",
+      "detail": "PRIMEIRA COISA A RODAR NUM CLONE NOVO. Repetir é seguro. Python 3.12 recomendado (3.11 funciona).",
+      "type": "shell",
+      "command": "python3",
+      "args": ["-m", "venv", ".venv"],
+      "windows": { "command": "python", "args": ["-m", "venv", ".venv"] },
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "presentation": { "group": "setup", "reveal": "always" }
+    },
+    {
+      "label": "setup: instalar dependências Python",
+      "detail": "backend/requirements-dev.txt (inclui requirements.txt, pytest, ruff, mypy, debugpy).",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": { "command": "${workspaceFolder}/.venv/Scripts/python.exe" },
+      "args": ["-m", "pip", "install", "-r", "backend/requirements-dev.txt"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": ["setup: criar ambiente Python (.venv)"],
+      "problemMatcher": [],
+      "presentation": { "group": "setup", "reveal": "always" }
+    },
+    {
+      "label": "setup: instalar dependências do frontend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["install"],
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "problemMatcher": [],
+      "presentation": { "group": "setup", "reveal": "always" }
+    },
+    {
+      "label": "setup: tudo",
+      "detail": "venv + dependências Python + npm install + banco + migrações.",
+      "dependsOn": [
+        "setup: instalar dependências Python",
+        "setup: instalar dependências do frontend",
+        "banco: aplicar migrações"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ]
+}

@@ -731,14 +731,15 @@ Metas do PRD §11 com 50 mil contatos / 10 mil oportunidades. Garantias de imple
 
 | Serviço | Imagem/Build | Exposição | Observações |
 |---|---|---|---|
-| `database` | `postgres:16-alpine` | interna | volume `pgdata`; healthcheck `pg_isready`; extensões criadas na migration inicial |
+| `database` | `postgres:16-alpine` | `127.0.0.1:${DB_PORT:-3434}` (só localhost, para depurador/psql do host) | volume `db_data`; healthcheck `pg_isready`; `docker/postgres/init` cria `minicrm_test`; extensões criadas na migration inicial |
 | `backend` | `backend/Dockerfile` (python:3.12-slim + libs do WeasyPrint: pango/cairo/fonts) | interna :8000 | `entrypoint.sh`: aguarda DB → `alembic upgrade head` → `python -m app.seed` (idempotente) → `uvicorn app.main:app --workers ${WEB_CONCURRENCY:-2}`; roda como usuário não-root |
 | `frontend` | multi-stage (node build → nginx) | interna :80 | |
 | `proxy` | `nginx:alpine` | `${HTTP_PORT:-8080}:80` | roteia `/api/` → backend, resto → frontend; headers de segurança; `client_max_body_size 2m` |
 | (P1) `scheduler` | mesma imagem do backend, `command: python -m app.workers.scheduler` | — | |
 
-`docker-compose.dev.yml` (override): volumes de código, `uvicorn --reload`, Vite dev server :5173 com proxy `/api → backend`, DB publicado em 5432, `CORS_ORIGINS=http://localhost:5173`.
-Comandos: `docker compose up -d` (prod) · `docker compose -f docker-compose.yml -f docker-compose.dev.yml up` (dev).
+`docker-compose.dev.yml` (override): backend alvo `dev` com **debugpy** (`127.0.0.1:5679`) e API em `127.0.0.1:3300`, código montado por volume, sem `--reload` (o debugpy não se prende ao processo filho).
+Desenvolvimento no host (padrão): banco em Docker, API via depurador do VS Code em `:3300`, Vite em `:3100` com proxy `/api → :3300`, `CORS_ORIGINS=http://localhost:3100`. Tarefas e launches em `.vscode/`; plano em [PLANO.md](PLANO.md).
+Comandos: `docker compose up -d --wait database` (dev no host) · `docker compose up -d --build --wait` (stack completo, :8080) · `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build --wait database backend` (backend em container com debugpy).
 
 ## 13.2 `.env.example` (completo)
 

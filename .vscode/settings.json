@@ -1,0 +1,48 @@
+{
+  // Interpretador não fixado de propósito (mesma lição do Vision.AI): a extensão
+  // de Python encontra `.venv` na raiz sozinha, com o layout certo de cada SO.
+
+  // O backend é importado como `app.*` a partir de `backend/`.
+  "python.analysis.extraPaths": ["${workspaceFolder}/backend"],
+  "python.analysis.autoImportCompletions": true,
+  "python.envFile": "${workspaceFolder}/.vscode/dev.env",
+
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.cwd": "${workspaceFolder}/backend",
+  "python.testing.pytestArgs": ["tests"],
+
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": { "source.organizeImports": "explicit" },
+    "editor.rulers": [100],
+    "editor.tabSize": 4
+  },
+  "[vue]": { "editor.tabSize": 2 },
+  "[typescript]": { "editor.tabSize": 2 },
+  "[json]": { "editor.tabSize": 2 },
+  "[jsonc]": { "editor.tabSize": 2 },
+
+  "eslint.workingDirectories": ["frontend"],
+  "tailwindCSS.experimental.configFile": "frontend/tailwind.config.js",
+
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.pytest_cache": true,
+    "**/.ruff_cache": true,
+    "**/.mypy_cache": true,
+    "**/*.tsbuildinfo": true
+  },
+  "search.exclude": {
+    "**/.venv": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "frontend/package-lock.json": true
+  },
+
+  "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true
+}
