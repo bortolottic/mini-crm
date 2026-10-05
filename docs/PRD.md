@@ -1,31 +1,24 @@
 # PRD — MINI-CRM
 
-**Versão:** 1.0
-**Status:** Draft
+**Versão:** 1.1
+**Status:** Revisado — pronto para derivar a SPEC (após resolver as Questões em Aberto, seção 19)
 **Produto:** MINI-CRM
 **Tipo:** CRM Web B2B
 **Objetivo:** Gestão simplificada de Leads, Prospects, Clientes e Oportunidades
+
+> **Histórico de revisão**
+> * 1.0 — Draft inicial.
+> * 1.1 — Modelo de dados unificado (ciclo de vida), regras de negócio explícitas, IDs de requisito, MVP/P1/P2 consistentes, decisões técnicas propostas, requisitos não funcionais mensuráveis e questões em aberto. O conteúdo de visão, roadmap e IA foi preservado, porém condensado.
 
 ---
 
 # 1. Visão do Produto
 
-O **MINI-CRM** é uma aplicação web de CRM compacta, moderna e modular, destinada ao gerenciamento do ciclo comercial de empresas.
+O **MINI-CRM** é uma aplicação web de CRM compacta, moderna e modular para gerenciar o ciclo comercial de empresas. Acompanha um contato desde a entrada como **Lead**, passando pela qualificação como **Prospect**, até a conversão em **Cliente**, mantendo todo o histórico de relacionamento.
 
-O sistema deverá permitir acompanhar a jornada de um contato desde sua entrada como **Lead**, passando pela qualificação como **Prospect**, até sua conversão em **Cliente**, mantendo todo o histórico comercial e de relacionamento.
+Prioridades: simplicidade, velocidade de uso, baixa complexidade operacional, interface moderna, facilidade de manutenção, arquitetura modular, execução local/on-premise/cloud e preparação para IA e automações.
 
-O produto deverá priorizar:
-
-* simplicidade;
-* velocidade de uso;
-* baixa complexidade operacional;
-* interface moderna;
-* facilidade de manutenção;
-* arquitetura modular;
-* possibilidade de execução local, on-premise ou cloud;
-* preparação para integrações futuras com IA, Machine Learning e automações.
-
-A primeira versão deverá evitar funcionalidades excessivamente complexas de CRMs tradicionais, concentrando-se no núcleo essencial da operação comercial.
+A primeira versão evita a complexidade dos CRMs tradicionais e se concentra no núcleo da operação comercial.
 
 ---
 
@@ -33,1346 +26,456 @@ A primeira versão deverá evitar funcionalidades excessivamente complexas de CR
 
 ## 2.1 Objetivo principal
 
-Disponibilizar uma plataforma simples para controlar o processo comercial de ponta a ponta:
+Controlar o processo comercial de ponta a ponta:
 
 ```text
-Lead
-  ↓
-Qualificação
-  ↓
-Prospect
-  ↓
-Oportunidade
-  ↓
-Proposta
-  ↓
-Negociação
-  ↓
-Cliente
-  ↓
-Pós-venda
+Lead → Qualificação → Prospect → Oportunidade → Proposta → Negociação → Cliente → Pós-venda
 ```
 
 ## 2.2 Objetivos específicos
 
-* Centralizar informações comerciais.
-* Eliminar controles dispersos em planilhas.
-* Facilitar o acompanhamento de oportunidades.
-* Registrar interações com contatos.
-* Controlar follow-ups.
-* Criar e acompanhar propostas comerciais.
-* Permitir envio de e-mails pelo CRM.
-* Criar cadências comerciais.
-* Manter histórico completo do relacionamento.
-* Criar uma arquitetura preparada para IA.
-* Permitir futuras automações baseadas em eventos.
+* Centralizar informações comerciais e eliminar planilhas dispersas.
+* Acompanhar oportunidades em pipeline visual.
+* Registrar interações e controlar follow-ups.
+* Criar propostas comerciais e gerar PDF.
+* Manter histórico completo e imutável do relacionamento.
+* (P1) Enviar e-mails e executar cadências.
+* Manter arquitetura preparada para IA e automações por eventos.
+
+## 2.3 Métricas de sucesso do MVP
+
+| Métrica | Meta |
+|---|---|
+| Tempo para cadastrar Lead (formulário mínimo) | < 30 s |
+| Tempo para subir ambiente do zero (`docker compose up`) | < 10 min |
+| Fluxo completo Lead → Cliente executável sem sair do sistema | 100% dos critérios da seção 17 |
+| Planilhas externas necessárias para operar o funil | 0 |
 
 ---
 
 # 3. Não Objetivos — MVP
 
-O MVP não deverá tentar competir diretamente com plataformas completas como Salesforce, HubSpot ou Dynamics.
+Fora do escopo inicial: ERP, faturamento, emissão fiscal, gestão financeira, ticketing, marketing automation, campanhas massivas de e-mail, telefonia/VoIP, WhatsApp oficial, gestão avançada de contratos, BI corporativo, previsão financeira avançada, Machine Learning próprio, **multi-tenant ativo**, **importação/exportação em massa** (ver Q-07), **tracking de visualização de proposta** e **assinatura eletrônica**.
 
-Ficam fora do escopo inicial:
-
-* ERP;
-* faturamento;
-* emissão fiscal;
-* gestão financeira completa;
-* atendimento/ticketing;
-* marketing automation avançado;
-* campanhas massivas de e-mail;
-* telefonia/VoIP;
-* WhatsApp oficial;
-* gestão avançada de contratos;
-* BI corporativo;
-* previsão financeira avançada;
-* Machine Learning próprio.
-
-Esses recursos poderão ser adicionados posteriormente através de módulos.
+Esses recursos poderão ser adicionados por módulos.
 
 ---
 
-# 4. Público-alvo
+# 4. Público-alvo e Perfis
 
-O sistema deverá atender principalmente:
+PMEs, equipes comerciais, consultorias, empresas de serviços e tecnologia, representantes comerciais e equipes de pré-vendas/vendas. Funciona para usuário individual ou pequenas equipes.
 
-* pequenas e médias empresas;
-* equipes comerciais;
-* empresas de serviços;
-* consultorias;
-* empresas de tecnologia;
-* representantes comerciais;
-* profissionais de vendas B2B;
-* equipes de pré-vendas e vendas.
+| Perfil | Permissões no MVP |
+|---|---|
+| **Admin** | Tudo: usuários, configurações, catálogo, pipeline, dados de todos os usuários. |
+| **Vendedor** | CRUD sobre registros; vê todos os registros da equipe (ver Q-05); não gerencia usuários nem configurações. |
 
-O sistema deverá funcionar tanto para um usuário individual quanto para pequenas equipes comerciais.
+Modelo de permissões deliberadamente simples; estrutura preparada para papéis adicionais.
 
 ---
 
-# 5. Stack Tecnológica
+# 5. Decisões Técnicas
+
+Itens marcados **(proposto)** são recomendações para fechar na SPEC; os demais são requisitos.
 
 ## 5.1 Backend
 
-**Python**
-
-Preferência por uma arquitetura organizada em camadas, permitindo futura integração com:
-
-* Machine Learning;
-* LLMs;
-* agentes de IA;
-* automações;
-* APIs externas;
-* processamento assíncrono.
-
-Arquitetura sugerida:
+* **Python**, arquitetura em camadas:
 
 ```text
-API
- ↓
-Services / BPO
- ↓
-Domain
- ↓
-DAO / Repository
- ↓
-Database
+API (routers)  →  Services (regras de negócio)  →  Repositories  →  Database
+                         │
+                    Domain (entidades, regras puras, eventos)
 ```
 
-O backend deverá manter separação clara entre:
+* Camadas obrigatórias: API, services, repositories, integrações, workers. Termos "BPO" e "DAO" do rascunho anterior foram unificados em **Services** e **Repositories**.
+* Framework web: **FastAPI (proposto)**.
+* ORM/migrations: **SQLAlchemy 2 + Alembic (proposto)**.
+* Banco: **PostgreSQL (proposto)**; SQLite apenas para testes rápidos, se não gerar divergência de comportamento.
+* Autenticação: **JWT de acesso curto + refresh token (proposto)**, senhas com argon2/bcrypt.
+* Geração de PDF no backend: **WeasyPrint ou equivalente (proposto)**, via template HTML.
+* Valores monetários: `Decimal`/`NUMERIC(14,2)`, nunca float.
 
-* API;
-* regras de negócio;
-* persistência;
-* integrações;
-* tarefas assíncronas.
+## 5.2 Frontend
 
----
+**Vue 3 + TypeScript**, Composition API, componentes reutilizáveis, estado global só quando necessário (**Pinia, proposto**), cliente REST tipado, formulários tipados com validação, build com **Vite (proposto)**.
 
-# 6. Frontend
+## 5.3 Referências externas
 
-**Vue 3 + TypeScript**
+| Referência | Uso | Observação |
+|---|---|---|
+| `D:\projects\personal\vision.ai` | Identidade visual: paleta, tipografia, espaçamentos, componentes, ícones, navegação, responsividade, dark/light. | Manter linguagem visual consistente; não copiar telas. |
+| `D:\projects\projjetta\pro-ai-assistant` | Estrutura de backend, config, Docker, env, auth, migrations, logging, tratamento de erros. | Reutilizar padrões, **sem acoplamento** entre projetos (copiar/adaptar, não importar). |
 
-O frontend deverá utilizar arquitetura modular baseada em componentes.
+> A SPEC deve inventariar concretamente o que será aproveitado de cada referência (tokens de design, estrutura de pastas, middlewares). Ambos os caminhos são externos ao repositório e precisam estar acessíveis a quem gerar a SPEC.
 
-Preferências:
+## 5.4 Infraestrutura
 
-* Vue 3;
-* TypeScript;
-* Composition API;
-* componentes reutilizáveis;
-* gerenciamento de estado quando necessário;
-* comunicação com API REST;
-* formulários tipados;
-* validação de dados.
-
----
-
-# 7. Identidade Visual
-
-A interface deverá utilizar como referência o projeto:
+Distribuição via Docker; todos os componentes executáveis em containers.
 
 ```text
-D:\projects\personal\vision.ai
+docker-compose.yml:  frontend | backend | database | (P1) worker | (P1) scheduler
 ```
 
-Deverão ser reutilizados, quando tecnicamente possível:
+Execução suportada em: local (Windows/Linux/macOS), servidor próprio (Linux + Docker) e cloud (Azure/AWS/GCP). Sem dependência obrigatória de SaaS externo.
 
-* paleta de cores;
-* tipografia;
-* espaçamentos;
-* componentes;
-* bordas;
-* cards;
-* botões;
-* inputs;
-* tabelas;
-* menus;
-* ícones;
-* padrões de navegação;
-* comportamento responsivo;
-* dark/light mode, caso existente no projeto de referência.
-
-O objetivo não é simplesmente copiar telas, mas manter uma **linguagem visual consistente com o Vision.AI**.
-
----
-
-# 8. Referência Arquitetural
-
-A arquitetura deverá utilizar como referência estrutural o projeto:
+Arquitetura geral:
 
 ```text
-D:\projects\projjetta\pro-ai-assistant
-```
-
-Deverão ser avaliados e reutilizados, quando fizer sentido:
-
-* organização de backend;
-* estrutura de projetos;
-* configuração;
-* Docker;
-* variáveis de ambiente;
-* autenticação;
-* banco de dados;
-* migrations;
-* organização de APIs;
-* logging;
-* tratamento de erros;
-* padrões de desenvolvimento.
-
-A reutilização deverá evitar acoplamento desnecessário entre os projetos.
-
----
-
-# 9. Arquitetura Geral
-
-Arquitetura inicial:
-
-```text
-                    ┌────────────────────┐
-                    │      Browser       │
-                    │   Vue 3 + TS       │
-                    └─────────┬──────────┘
-                              │
-                         REST / HTTP
-                              │
-                    ┌─────────▼──────────┐
-                    │      Backend       │
-                    │      Python        │
-                    └─────────┬──────────┘
-                              │
-            ┌─────────────────┼─────────────────┐
-            │                 │                 │
-       ┌────▼────┐       ┌────▼────┐       ┌────▼────┐
-       │ Database│       │  Email  │       │ Future  │
-       │         │       │ Service │       │   AI    │
-       └─────────┘       └─────────┘       └─────────┘
-```
-
-Todos os componentes deverão ser executáveis através de containers.
-
----
-
-# 10. Infraestrutura
-
-A aplicação deverá ser distribuída através de Docker.
-
-Estrutura conceitual:
-
-```text
-docker-compose.yml
-
-frontend
-backend
-database
-worker
-scheduler
-```
-
-Nem todos os serviços precisam estar presentes no MVP.
-
-A arquitetura deverá permitir execução em:
-
-### Local
-
-```text
-Windows / Linux / macOS
-```
-
-### Servidor próprio
-
-```text
-Linux + Docker
-```
-
-### Cloud
-
-```text
-Azure
-AWS
-GCP
-ou outro provedor
+Browser (Vue 3 + TS) ── REST/HTTP ── Backend (Python) ──┬── Database
+                                                        ├── Email service (P1)
+                                                        └── AI service (futuro, opcional)
 ```
 
 ---
 
-# 11. Autenticação e Usuários
+# 6. Glossário e Modelo Conceitual
 
-O sistema deverá possuir autenticação.
+| Termo | Definição |
+|---|---|
+| **Empresa** | Organização (conta). Pode ter vários contatos. |
+| **Contato** | Pessoa física, opcionalmente vinculada a uma empresa. |
+| **Estágio de ciclo de vida** (`lifecycle_stage`) | `lead`, `prospect` ou `customer`. É um **atributo** do Contato (e da Empresa), não uma entidade separada. |
+| **Lead** | Contato ainda não qualificado (`lifecycle_stage = lead`). |
+| **Prospect** | Contato qualificado, com potencial real de compra (`prospect`). |
+| **Cliente** | Contato/empresa com ao menos uma oportunidade ganha (`customer`). |
+| **Oportunidade** | Negociação concreta com valor, estágio no pipeline e previsão de fechamento. |
+| **Atividade** | Interação ou tarefa agendável (ligação, reunião, tarefa, nota, follow-up…). |
+| **Evento** | Registro imutável de algo que ocorreu (alimenta timeline, auditoria e futura IA). |
+| **Proposta** | Documento comercial com itens e condições, vinculado a uma oportunidade. |
 
-Funcionalidades mínimas:
+## 6.1 Decisão de modelagem (alteração relevante vs. v1.0)
 
-* login;
-* logout;
-* recuperação de senha;
-* alteração de senha;
-* sessão autenticada;
-* usuário ativo/inativo.
+A v1.0 tratava Lead, Prospect e Cliente como entidades distintas (e listava só `leads` no banco). Isso obrigaria copiar/migrar histórico a cada conversão. **Na v1.1, Lead/Prospect/Cliente são estágios de ciclo de vida do Contato (e da Empresa)**:
 
-Estrutura preparada para:
-
-* múltiplos usuários;
-* equipes;
-* permissões;
-* multi-tenant.
-
-No MVP, o modelo de permissões deverá permanecer simples.
-
----
-
-# 12. Modelo Comercial
-
-O sistema deverá trabalhar com os seguintes conceitos principais:
+* "Converter" = mudar `lifecycle_stage` + registrar evento. Histórico, atividades, e-mails e propostas já ficam vinculados ao mesmo registro, **sem perda por construção**.
+* As telas "Leads", "Prospects" e "Clientes" são **visões filtradas** da mesma base.
+* Atributos de qualificação (origem, temperatura, status do lead) pertencem ao Contato e são relevantes enquanto `lifecycle_stage = lead`.
 
 ```text
-Pessoa
-Empresa
-Lead
-Prospect
-Cliente
-Oportunidade
-Atividade
-Proposta
-Produto/Serviço
-E-mail
-Cadência
+Empresa 1───N Contato 1───N Oportunidade 1───N Proposta 1───N Item
+                │                 │
+                └──N Atividade ───┘            Todos geram ──► Evento (timeline/auditoria)
+Empresa 1───N Oportunidade
+Produto 1───N Item de Proposta
+Tag N───N (Empresa | Contato | Oportunidade)
 ```
 
 ---
 
-# 13. Pessoa / Contato
+# 7. Requisitos Funcionais
 
-Um contato deverá possuir:
+Cada requisito possui ID (`RF-nn`) e prioridade (P0 = MVP, P1 = segunda etapa, P2 = evolução) para rastreabilidade na SPEC.
 
-* nome;
-* sobrenome;
-* e-mail;
-* telefone;
-* celular;
-* cargo;
-* empresa;
-* observações;
-* origem;
-* responsável;
-* status;
-* tags;
-* data de criação;
-* data de atualização.
+## 7.1 Autenticação e Usuários
 
-Um contato poderá estar associado a uma empresa.
+| ID | Requisito | Prio |
+|---|---|---|
+| RF-01 | Login, logout e sessão autenticada (token com expiração). | P0 |
+| RF-02 | Alteração de senha pelo próprio usuário. | P0 |
+| RF-03 | Recuperação de senha. No MVP sem e-mail configurado: redefinição pelo Admin; por e-mail a partir do P1. | P0/P1 |
+| RF-04 | CRUD de usuários pelo Admin; usuário ativo/inativo (inativo não autentica, mas preserva histórico). | P0 |
+| RF-05 | Dois papéis: Admin e Vendedor. Criação do primeiro Admin via seed/variável de ambiente. | P0 |
 
----
+## 7.2 Empresas
 
-# 14. Empresa
+| ID | Requisito | Prio |
+|---|---|---|
+| RF-10 | CRUD de empresas. Campos: razão social, nome fantasia, CNPJ (validado, único quando informado), site, e-mail, telefone, endereço, cidade, estado, país, segmento, porte, observações, responsável, `lifecycle_stage`. | P0 |
+| RF-11 | Uma empresa possui vários contatos e oportunidades. | P0 |
+| RF-12 | Empresa assume `customer` automaticamente na primeira oportunidade ganha (ver RN-05). | P0 |
 
-Cadastro de empresas relacionadas aos contatos.
+## 7.3 Contatos, Leads, Prospects e Clientes
 
-Campos mínimos:
+| ID | Requisito | Prio |
+|---|---|---|
+| RF-20 | CRUD de contatos. Campos: nome, sobrenome, e-mail, telefone, celular, cargo, empresa, observações, origem, responsável, `lifecycle_stage`, datas de criação/atualização. Nome é o único campo obrigatório; e-mail único quando informado. | P0 |
+| RF-21 | Atributos de lead: origem, temperatura (`frio`/`morno`/`quente`), status de qualificação, última interação (calculada), próxima ação. | P0 |
+| RF-22 | Status do lead: `Novo → Em contato → Qualificando → Qualificado`, e terminais `Desqualificado` (com motivo) e `Convertido`. | P0 |
+| RF-23 | Converter Lead → Prospect (ação explícita; exige status `Qualificado`). | P0 |
+| RF-24 | Converter Prospect → Cliente: automático ao ganhar oportunidade e também manual (RN-05). | P0 |
+| RF-25 | Listagens "Leads", "Prospects", "Clientes" como visões filtradas, com busca, filtros e paginação. | P0 |
+| RF-26 | Origens configuráveis (lista simples: indicação, site, evento, outbound, outros…). | P0 |
 
-* razão social;
-* nome fantasia;
-* CNPJ;
-* site;
-* e-mail;
-* telefone;
-* endereço;
-* cidade;
-* estado;
-* país;
-* segmento;
-* porte;
-* observações;
-* responsável;
-* tags.
+## 7.4 Oportunidades e Pipeline
 
-Uma empresa poderá possuir vários contatos.
+| ID | Requisito | Prio |
+|---|---|---|
+| RF-30 | CRUD de oportunidades: nome, empresa, contato, responsável, valor, estágio, probabilidade, previsão de fechamento, origem, observações. | P0 |
+| RF-31 | Estágios do pipeline configuráveis pelo Admin (nome, ordem, probabilidade padrão, tipo `aberto`/`ganho`/`perdido`). | P0 |
+| RF-32 | Visão Kanban com arrastar entre estágios, valor total por coluna, responsável no card, abertura de detalhes, atalhos para registrar atividade e criar proposta. | P0 |
+| RF-33 | Visão em lista com filtros (estágio, responsável, período, faixa de valor). | P0 |
+| RF-34 | Mudança de estágio gera evento com estágio anterior/novo e usuário; histórico de estágios é consultável. | P0 |
+| RF-35 | Fechamento como **Perdido** exige motivo (lista configurável + texto livre). | P0 |
+| RF-36 | Reabrir oportunidade fechada é permitido ao Admin, com evento registrado. | P0 |
 
----
+**Pipeline padrão (seed):**
 
-# 15. Lead
+| Ordem | Estágio | Tipo | Prob. padrão |
+|---|---|---|---|
+| 1 | Qualificação | aberto | 10% |
+| 2 | Reunião | aberto | 25% |
+| 3 | Proposta | aberto | 50% |
+| 4 | Negociação | aberto | 75% |
+| 5 | Fechado Ganho | ganho | 100% |
+| 6 | Fechado Perdido | perdido | 0% |
 
-Lead representa um potencial contato comercial ainda não qualificado.
+> Esta é a **única** definição de estágios de oportunidade. Os estágios "Novo" e "Qualificação" da v1.0 pertenciam ao ciclo do Lead e passam a ser o *status do lead* (RF-22), sem duplicidade com o pipeline.
 
-Informações:
+## 7.5 Atividades, Follow-ups e Timeline
 
-* contato;
-* empresa;
-* origem;
-* responsável;
-* status;
-* temperatura;
-* tags;
-* observações;
-* data de criação;
-* última interação;
-* próxima ação.
+| ID | Requisito | Prio |
+|---|---|---|
+| RF-40 | Atividade com tipo (`ligação`, `reunião`, `tarefa`, `e-mail`, `nota`, `follow-up`, `outro`), título, descrição, responsável, data/hora, prioridade (`baixa`/`média`/`alta`), status (`Pendente`/`Concluída`/`Cancelada`) e entidade relacionada (contato, empresa ou oportunidade). | P0 |
+| RF-41 | Follow-up é uma atividade do tipo `follow-up` com data prevista e ação; é a "próxima ação" exibida na entidade (a mais próxima pendente). | P0 |
+| RF-42 | Follow-ups/tarefas pendentes com data/hora vencida são destacados como **atrasados** (cálculo em tempo de leitura, sem depender de scheduler). | P0 |
+| RF-43 | Concluir atividade atualiza "última interação" da entidade (exceto tipo `tarefa`/`nota`, configurável na SPEC). | P0 |
+| RF-44 | Visões "Tarefas/Follow-ups" (lista com filtros) e "Agenda" (calendário simples dia/semana/mês). Agenda pode ser P1 se houver restrição de prazo. | P0 (lista) / P1 (agenda) |
+| RF-45 | Timeline por Contato, Empresa e Oportunidade, ordenada por data desc, com paginação; combina atividades e eventos do sistema. A timeline de Empresa agrega a de seus contatos e oportunidades. | P0 |
 
-Status sugeridos:
+Eventos de timeline possuem: data/hora, usuário, tipo, descrição, entidade relacionada e metadados opcionais (JSON).
 
-```text
-Novo
-Em contato
-Qualificando
-Qualificado
-Desqualificado
-Convertido
-```
+## 7.6 Catálogo
 
----
+| ID | Requisito | Prio |
+|---|---|---|
+| RF-50 | CRUD de produtos/serviços: código (único), nome, descrição, categoria, unidade, preço padrão, ativo/inativo. Inativos não aparecem para novas propostas, mas permanecem em propostas existentes. | P0 |
 
-# 16. Prospect
+## 7.7 Propostas
 
-Um Lead poderá ser convertido em Prospect.
+| ID | Requisito | Prio |
+|---|---|---|
+| RF-60 | Proposta vinculada a **uma** oportunidade (que fornece cliente e contato). Uma oportunidade pode ter várias propostas (revisões). | P0 |
+| RF-61 | Cabeçalho: número sequencial legível (ex.: `2026-0001`), cliente, contato, oportunidade, data, validade, responsável. | P0 |
+| RF-62 | Itens: produto (opcional — permite item avulso), descrição, quantidade, valor unitário, desconto, total do item. Preço do produto é **copiado** para o item (snapshot). | P0 |
+| RF-63 | Condições: prazo, forma de pagamento, observações. | P0 |
+| RF-64 | Cálculo: ver RN-10. | P0 |
+| RF-65 | Estados MVP: `Rascunho → Enviada → Aceita \| Recusada`, além de `Expirada` e `Cancelada`. `Visualizada` fica **reservado** (exige tracking; P2). | P0 |
+| RF-66 | Proposta fora de `Rascunho` fica somente leitura; alteração gera nova revisão (nova proposta vinculada à anterior). | P0 |
+| RF-67 | Geração de PDF no backend com identidade visual, dados da empresa emissora e do cliente, itens, descontos, total, condições, validade e observações. Dados da empresa emissora são configuráveis (Configurações → Sistema). | P0 |
+| RF-68 | Marcar como `Enviada` no MVP é **manual** (registra data e usuário); envio por e-mail integrado vem no P1. | P0 |
+| RF-69 | Registrar data/usuário de envio, aceite e recusa. | P0 |
 
-A conversão deverá preservar integralmente o histórico anterior.
+## 7.8 Comunicação (P1)
 
-Exemplo:
+| ID | Requisito | Prio |
+|---|---|---|
+| RF-70 | Configurar conta de envio (SMTP); credenciais armazenadas cifradas ou via env. | P1 |
+| RF-71 | Enviar e-mail: destinatário, cópia, assunto, corpo HTML (sanitizado), anexos (incl. PDF da proposta). Sempre associado a contato e, se aplicável, oportunidade. Gera atividade `e-mail` e evento. | P1 |
+| RF-72 | Templates reutilizáveis com variáveis `{{nome}}`, `{{empresa}}`, `{{email}}`, `{{telefone}}`, `{{oportunidade}}`, `{{valor}}`, `{{usuario}}`; registro de variáveis extensível; variável desconhecida/vazia não deve quebrar o envio (falha de validação visível ao usuário). | P1 |
+| RF-73 | Histórico de e-mails enviados com status (`enviado`, `falhou`). | P1 |
+| RF-74 | Cadências: nome, descrição, status, etapas (dia relativo, ação: enviar e-mail por template / criar tarefa / criar follow-up). | P1 |
+| RF-75 | Inscrição de contato em cadência; cadência é **interrompida** automaticamente se o contato responder (registro manual), for desqualificado ou convertido para cliente (configurável). | P1 |
+| RF-76 | Scheduler desacoplado do backend principal (processo/container próprio) executa ações programadas com idempotência e retentativas. | P1 |
 
-```text
-Lead
- ├── Interações
- ├── E-mails
- ├── Atividades
- └── Observações
-        ↓
-     Prospect
-        ↓
-   Oportunidade
-```
+## 7.9 Busca, Tags e Dashboard
 
-Nenhum histórico deverá ser perdido durante a conversão.
+| ID | Requisito | Prio |
+|---|---|---|
+| RF-80 | Tags livres aplicáveis a empresas, contatos e oportunidades; filtro por tag nas listagens. | P1 |
+| RF-81 | Busca global (empresas, contatos, oportunidades, propostas) por nome/e-mail/CNPJ/número; resultados agrupados por tipo. "Empresa XYZ" retorna a empresa, seus contatos, oportunidades e propostas. | P1 |
+| RF-82 | Dashboard: contagem de leads, prospects e clientes; oportunidades abertas; valor do pipeline (soma de valores abertos; valor ponderado como opcional); propostas enviadas e aceitas; follow-ups pendentes e atrasados. Simples, sem configuração. | P1 |
 
----
+> Tags e busca global simples (por nome) podem ser antecipadas por serem baratas; na SPEC, decidir se entram no MVP.
 
-# 17. Cliente
+## 7.10 Automação e IA (P2 — fora do MVP)
 
-Um Prospect poderá ser convertido em Cliente.
+* Automação por eventos: `EVENTO → TRIGGER → AÇÃO` (ex.: "Lead criado → adicionar à cadência"; "Proposta enviada → criar follow-up em 3 dias").
+* Webhooks e integrações externas.
+* IA: lead scoring, resumo de relacionamento, sugestão de próxima ação, geração de e-mail, análise de sentimento.
 
-A conversão deverá preservar:
-
-* informações cadastrais;
-* histórico;
-* atividades;
-* oportunidades;
-* propostas;
-* e-mails;
-* observações.
-
-O sistema deverá permitir continuar registrando atividades após a conversão.
-
----
-
-# 18. Funil de Vendas
-
-O sistema deverá possuir um funil visual.
-
-Exemplo:
-
-```text
-Novo
- ↓
-Qualificação
- ↓
-Reunião
- ↓
-Proposta
- ↓
-Negociação
- ↓
-Fechado Ganho
- ↓
-Fechado Perdido
-```
-
-Cada oportunidade deverá possuir:
-
-* nome;
-* empresa;
-* contato;
-* responsável;
-* valor;
-* estágio;
-* probabilidade;
-* data prevista de fechamento;
-* origem;
-* observações;
-* atividades;
-* propostas.
+No MVP implementa-se apenas a **base**: barramento de eventos interno (RN-14) e tabela de eventos com metadados. A camada de IA é um serviço independente e opcional (`AI_ENABLED=false` por padrão); o CRM nunca depende dela.
 
 ---
 
-# 19. Pipeline Visual
+# 8. Regras de Negócio
 
-A interface deverá permitir visualizar oportunidades em formato Kanban.
-
-Exemplo:
-
-```text
-┌───────────┐ ┌────────────┐ ┌───────────┐ ┌────────────┐
-│ Qualificar│ │  Reunião   │ │ Proposta  │ │ Negociação │
-├───────────┤ ├────────────┤ ├───────────┤ ├────────────┤
-│ Empresa A │ │ Empresa B  │ │ Empresa C │ │ Empresa D  │
-│ R$ 10.000  │ │ R$ 20.000  │ │ R$ 15.000 │ │ R$ 30.000  │
-└───────────┘ └────────────┘ └───────────┘ └────────────┘
-```
-
-Deverá ser possível:
-
-* mover oportunidade entre etapas;
-* visualizar valor;
-* visualizar responsável;
-* abrir detalhes;
-* registrar atividade;
-* criar proposta.
+| ID | Regra |
+|---|---|
+| RN-01 | Todo registro de ciclo de vida (Contato/Empresa) nasce como `lead`, salvo criação direta informada como `prospect`/`customer` por usuário autorizado. |
+| RN-02 | **Lead → Prospect:** permitido apenas com status `Qualificado`. Mantém o mesmo registro; define status do lead como `Convertido`; gera evento `lead_converted`. Pode opcionalmente criar uma oportunidade na mesma ação. |
+| RN-03 | Lead `Desqualificado` exige motivo e pode ser reativado (volta a `Novo`), com evento. |
+| RN-04 | Oportunidade só pode ser criada para Contato/Empresa em `prospect` ou `customer`. Ao criar oportunidade para um `lead`, o sistema oferece a conversão automática (RN-02). |
+| RN-05 | **Prospect → Cliente:** ocorre automaticamente quando uma oportunidade do contato/empresa entra em estágio `ganho`; também pode ser feito manualmente. Gera evento `customer_converted`. Cliente nunca regride automaticamente. |
+| RN-06 | Conversões não duplicam nem movem dados; histórico é preservado por construção (mesmo registro). |
+| RN-07 | Mover oportunidade atualiza a probabilidade para o padrão do estágio, mas o usuário pode sobrescrevê-la. Estágio `ganho` = 100%, `perdido` = 0%. |
+| RN-08 | Estágio `perdido` exige motivo; estágios `ganho`/`perdido` preenchem `closed_at`. |
+| RN-09 | Aceitar proposta **não** move a oportunidade automaticamente no MVP; o sistema sugere mover para `Fechado Ganho` (confirmação do usuário). Enviar proposta sugere mover para `Proposta`. |
+| RN-10 | **Cálculo de proposta:** `total_item = quantidade × valor_unitário − desconto_item`; `subtotal = Σ(quantidade × valor_unitário)`; `desconto_total = Σ desconto_item (+ desconto global, se existir)`; `total = subtotal − desconto_total`. Desconto pode ser em valor ou percentual (convertido e armazenado em valor); não pode exceder o valor do item; resultado nunca negativo. Arredondamento a 2 casas, `ROUND_HALF_UP`, aplicado por item. |
+| RN-11 | Proposta `Enviada` cuja validade passou é exibida como `Expirada` (calculado na leitura); o estado é persistido pelo scheduler no P1. |
+| RN-12 | Exclusão: contatos, empresas, oportunidades, propostas e produtos usam **exclusão lógica** (`deleted_at`). Não é permitido excluir empresa com oportunidades abertas. Eventos nunca são excluídos. |
+| RN-13 | Unicidade: CNPJ de empresa e e-mail de contato (quando informados) são únicos entre registros ativos; o sistema alerta possível duplicata (mesmo nome + empresa). |
+| RN-14 | Toda mudança relevante (criação, conversão, mudança de estágio, proposta criada/enviada/aceita/recusada, atividade concluída, login) publica um **evento de domínio** persistido em `events`. Essa tabela serve simultaneamente de **timeline e trilha de auditoria** (substitui as duas estruturas separadas da v1.0). |
+| RN-15 | "Última interação" = data da última atividade concluída do tipo ligação/reunião/e-mail no contato. "Próxima ação" = follow-up pendente mais próximo. |
+| RN-16 | Datas armazenadas em UTC; exibidas no fuso configurado (padrão `America/Sao_Paulo`). Moeda padrão BRL. Idioma da interface: pt-BR (estrutura preparada para i18n). |
+| RN-17 | Vendedor só edita registros dos quais é responsável, ou todos (conforme Q-05); somente Admin altera responsável em massa, configura pipeline e gerencia usuários. |
 
 ---
 
-# 20. Histórico / Timeline
+# 9. Modelo de Dados (alto nível)
 
-Cada Lead, Prospect, Cliente e Oportunidade deverá possuir uma timeline.
-
-Exemplo:
+Banco relacional. Toda tabela possui `id` (UUID, **proposto**), `created_at`, `updated_at`; entidades com exclusão lógica possuem `deleted_at`. Chaves estrangeiras e índices em campos de filtro/busca.
 
 ```text
-05/10 10:30
-✉ E-mail enviado
-
-04/10 14:00
-📞 Ligação registrada
-
-03/10 09:00
-📝 Reunião agendada
-
-01/10 16:30
-🔄 Oportunidade alterada para "Proposta"
-
-28/09 11:20
-👤 Lead criado
-```
-
-Eventos deverão possuir:
-
-* data/hora;
-* usuário;
-* tipo;
-* descrição;
-* entidade relacionada;
-* metadados opcionais.
-
----
-
-# 21. Atividades
-
-O sistema deverá permitir registrar:
-
-* ligação;
-* reunião;
-* tarefa;
-* e-mail;
-* nota;
-* follow-up;
-* outros eventos.
-
-Cada atividade poderá possuir:
-
-* título;
-* descrição;
-* responsável;
-* data;
-* horário;
-* status;
-* prioridade;
-* entidade relacionada.
-
-Status:
-
-```text
-Pendente
-Concluída
-Cancelada
-```
-
----
-
-# 22. Follow-up
-
-O usuário deverá conseguir definir a próxima ação comercial.
-
-Exemplo:
-
-```text
-Cliente: Empresa XYZ
-Último contato: 05/10
-Próximo contato: 08/10
-Ação: Ligar para verificar proposta
-Responsável: Carlos
-```
-
-O sistema deverá destacar follow-ups atrasados.
-
----
-
-# 23. Propostas Comerciais
-
-O CRM deverá permitir criar propostas associadas a uma oportunidade.
-
-Uma proposta deverá possuir:
-
-### Cabeçalho
-
-* número;
-* cliente;
-* contato;
-* oportunidade;
-* data;
-* validade;
-* responsável.
-
-### Itens
-
-* produto/serviço;
-* descrição;
-* quantidade;
-* valor unitário;
-* desconto;
-* valor total.
-
-### Condições
-
-* prazo;
-* forma de pagamento;
-* observações;
-* validade.
-
----
-
-# 24. Status da Proposta
-
-Estados mínimos:
-
-```text
-Rascunho
-Enviada
-Visualizada
-Aceita
-Recusada
-Expirada
-Cancelada
-```
-
-A arquitetura deverá permitir futuramente registrar eventos como:
-
-* data de envio;
-* data de visualização;
-* data de aceite;
-* usuário responsável.
-
----
-
-# 25. Geração de PDF
-
-O sistema deverá permitir gerar uma proposta em PDF.
-
-O documento deverá possuir:
-
-* identidade visual;
-* dados da empresa;
-* dados do cliente;
-* descrição dos produtos/serviços;
-* valores;
-* descontos;
-* total;
-* condições comerciais;
-* validade;
-* observações.
-
-A geração deverá ser realizada no backend.
-
----
-
-# 26. Produtos e Serviços
-
-Cadastro básico de itens comercializados.
-
-Campos:
-
-* código;
-* nome;
-* descrição;
-* categoria;
-* unidade;
-* preço padrão;
-* ativo/inativo.
-
-O produto deverá poder ser selecionado durante a criação de propostas.
-
----
-
-# 27. E-mail
-
-O CRM deverá permitir envio de e-mails.
-
-Funcionalidades:
-
-* configurar conta de envio;
-* enviar e-mail;
-* destinatário;
-* cópia;
-* assunto;
-* corpo HTML;
-* anexos;
-* templates;
-* histórico.
-
-Cada e-mail enviado deverá ser associado ao contexto comercial.
-
-Exemplo:
-
-```text
-Empresa XYZ
- └── Oportunidade #102
-      ├── E-mail enviado
-      ├── Reunião
-      ├── Proposta
-      └── Follow-up
-```
-
----
-
-# 28. Templates de E-mail
-
-Usuários deverão poder criar templates reutilizáveis.
-
-Exemplo:
-
-```text
-Olá {{nome}},
-
-Conforme conversamos, estou enviando nossa proposta
-comercial para {{empresa}}.
-
-Atenciosamente,
-{{usuario}}
-```
-
-Variáveis deverão ser substituídas automaticamente.
-
-Variáveis iniciais:
-
-```text
-{{nome}}
-{{empresa}}
-{{email}}
-{{telefone}}
-{{oportunidade}}
-{{valor}}
-{{usuario}}
-```
-
-A arquitetura deverá permitir adicionar novas variáveis futuramente.
-
----
-
-# 29. Cadências
-
-O sistema deverá permitir criar cadências comerciais.
-
-Exemplo:
-
-```text
-Dia 0
-↓
-Enviar e-mail inicial
-
-Dia 2
-↓
-Follow-up
-
-Dia 5
-↓
-Novo e-mail
-
-Dia 8
-↓
-Criar tarefa de ligação
-```
-
-Uma cadência deverá possuir:
-
-* nome;
-* descrição;
-* status;
-* etapas;
-* intervalo;
-* template;
-* ação.
-
----
-
-# 30. Scheduler
-
-As ações programadas deverão ser executadas através de um scheduler.
-
-Possíveis ações:
-
-* enviar e-mail;
-* criar tarefa;
-* criar follow-up;
-* alterar status;
-* disparar webhook;
-* executar automação futura.
-
-O scheduler deverá ser desacoplado do backend principal.
-
----
-
-# 31. Busca
-
-O sistema deverá possuir busca global.
-
-A busca deverá considerar:
-
-* pessoas;
-* empresas;
-* leads;
-* prospects;
-* clientes;
-* oportunidades;
-* propostas.
-
-Exemplo:
-
-```text
-"Empresa XYZ"
-```
-
-deverá retornar todas as entidades relacionadas.
-
----
-
-# 32. Tags
-
-Entidades comerciais poderão receber tags.
-
-Exemplos:
-
-```text
-Hot
-VIP
-Indústria
-Saúde
-Power BI
-IA
-Alta prioridade
-```
-
-As tags deverão permitir filtros.
-
----
-
-# 33. Dashboard
-
-O dashboard inicial deverá apresentar informações resumidas.
-
-Indicadores:
-
-* Leads;
-* Prospects;
-* Clientes;
-* Oportunidades abertas;
-* Valor do pipeline;
-* Propostas enviadas;
-* Propostas aceitas;
-* Follow-ups pendentes;
-* Follow-ups atrasados.
-
-Exemplo:
-
-```text
-┌────────────┐ ┌────────────┐ ┌────────────┐
-│ Leads      │ │ Prospects  │ │ Clientes   │
-│    120     │ │     42     │ │     18     │
-└────────────┘ └────────────┘ └────────────┘
-
-Pipeline
-R$ 385.000
-
-Propostas
-12 enviadas
-7 aceitas
-```
-
-O dashboard deverá permanecer simples.
-
----
-
-# 34. Automação por Eventos
-
-A arquitetura deverá permitir futuramente ações baseadas em eventos.
-
-Exemplo:
-
-```text
-EVENTO
-Lead criado
-   ↓
-TRIGGER
-   ↓
-AÇÃO
-Adicionar à cadência
-```
-
-Outros exemplos:
-
-```text
-Proposta enviada
-      ↓
-Criar follow-up em 3 dias
-```
-
-```text
-Lead convertido
-      ↓
-Executar workflow
-```
-
----
-
-# 35. Preparação para IA
-
-A arquitetura deverá ser criada considerando futuras funcionalidades de IA.
-
-Possibilidades futuras:
-
-### Lead Scoring
-
-Classificar automaticamente leads.
-
-```text
-Lead → IA → Score 87/100
-```
-
-### Resumo de relacionamento
-
-Gerar automaticamente:
-
-> "Cliente possui interesse em BI e IA. Foram realizadas três reuniões. Proposta de R$ 45.000 enviada há quatro dias."
-
-### Sugestão de próxima ação
-
-```text
-Próxima melhor ação:
-Entrar em contato para acompanhamento da proposta.
-```
-
-### Geração de e-mail
-
-```text
-Contexto comercial
-       ↓
-       IA
-       ↓
-E-mail personalizado
-```
-
-### Análise de sentimento
-
-Analisar interações e identificar:
-
-* interesse;
-* dúvida;
-* objeção;
-* insatisfação;
-* intenção de compra.
-
-Essas funcionalidades não fazem parte do MVP, mas a arquitetura deverá permitir sua implementação.
-
----
-
-# 36. Arquitetura de IA
-
-Futuramente poderá existir um serviço independente:
-
-```text
-CRM
- │
- ├── API
- │
- ├── Database
- │
- ├── Scheduler
- │
- └── AI Service
-       │
-       ├── LLM
-       ├── Embeddings
-       ├── Vector DB
-       └── Agents
-```
-
-A camada de IA não deverá ser obrigatória para o funcionamento básico do CRM.
-
----
-
-# 37. API
-
-O backend deverá disponibilizar API REST.
-
-Exemplos:
-
-```text
-POST   /api/auth/login
-
-GET    /api/contacts
-POST   /api/contacts
-GET    /api/contacts/{id}
-PUT    /api/contacts/{id}
-DELETE /api/contacts/{id}
-
-GET    /api/companies
-POST   /api/companies
-
-GET    /api/leads
-POST   /api/leads
-
-POST   /api/leads/{id}/convert
-
-GET    /api/opportunities
-POST   /api/opportunities
-PUT    /api/opportunities/{id}
-
-GET    /api/proposals
-POST   /api/proposals
-
-POST   /api/emails/send
-
-GET    /api/activities
-POST   /api/activities
-```
-
-A API deverá ser versionável:
-
-```text
-/api/v1/
-```
-
----
-
-# 38. Banco de Dados
-
-Banco relacional.
-
-Entidades principais:
-
-```text
-users
-companies
-contacts
-leads
-opportunities
-pipeline_stages
-activities
-proposals
-proposal_items
+users                 (papel, ativo)
+companies             (lifecycle_stage, owner_id, ...)
+contacts              (company_id, lifecycle_stage, lead_status, lead_temperature, origin_id, owner_id, ...)
+origins               (lista configurável)
+pipeline_stages       (nome, ordem, tipo, probabilidade_padrão)
+loss_reasons
+opportunities         (company_id, contact_id, stage_id, valor, probabilidade, expected_close, closed_at, loss_reason_id, ...)
+activities            (tipo, status, prioridade, due_at, owner_id, related_type, related_id)
 products
-email_templates
-emails
-cadences
-cadence_steps
-tags
-entity_tags
-audit_events
+proposals             (número, opportunity_id, status, validade, revisão_de, sent_at, accepted_at, ...)
+proposal_items        (proposal_id, product_id?, descrição, qtd, unit_price, desconto, total)
+tags / entity_tags
+events                (occurred_at, user_id, type, entity_type, entity_id, description, metadata JSONB)   -- timeline + auditoria
+-- P1:
+email_accounts, email_templates, emails, cadences, cadence_steps, cadence_enrollments
 ```
 
-Os relacionamentos deverão ser projetados para preservar o histórico comercial.
+Observações:
+
+* A tabela `leads` da v1.0 foi removida (ver 6.1).
+* Relacionamentos polimórficos (`related_type/related_id`, `entity_type/entity_id`) são aceitos para atividades, eventos e tags; a SPEC deve definir validação de integridade na camada de serviço.
+* Isolamento multi-tenant não é implementado no MVP; deixar o **ponto de extensão** documentado (ex.: coluna `tenant_id` nullable ou schema por tenant) para evitar migração destrutiva futura (Q-04).
 
 ---
 
-# 39. Auditoria
+# 10. API
 
-Alterações relevantes deverão poder ser registradas.
+* REST, JSON, **todos os endpoints sob `/api/v1/`** (a v1.0 listava `/api/` e `/api/v1/` de forma inconsistente).
+* Autenticação por `Authorization: Bearer <token>`; endpoints protegidos por padrão.
+* Paginação (`page`, `page_size` com máximo), ordenação e filtros no backend.
+* Documentação OpenAPI gerada automaticamente.
 
-Exemplos:
+Recursos principais (CRUD salvo indicação):
 
 ```text
-Lead criado
-Lead convertido
-Oportunidade criada
-Estágio alterado
-Proposta criada
-Proposta enviada
-Proposta aceita
-Cliente convertido
+POST   /api/v1/auth/login | /auth/logout | /auth/refresh | /auth/change-password
+GET    /api/v1/users, /users/me
+CRUD   /api/v1/companies, /contacts, /products, /opportunities, /proposals, /activities
+GET    /api/v1/leads | /prospects | /customers             (visões filtradas de contacts)
+POST   /api/v1/contacts/{id}/convert-to-prospect
+POST   /api/v1/contacts/{id}/convert-to-customer
+POST   /api/v1/opportunities/{id}/move                     (mudança de estágio)
+POST   /api/v1/proposals/{id}/send | /accept | /reject | /cancel | /revise
+GET    /api/v1/proposals/{id}/pdf
+GET    /api/v1/{contacts|companies|opportunities}/{id}/timeline
+GET    /api/v1/pipeline/stages   (PUT: Admin)
+-- P1
+POST   /api/v1/emails/send ; CRUD /email-templates, /cadences
+GET    /api/v1/search?q=
+GET    /api/v1/dashboard/summary
 ```
 
-A estrutura de auditoria também será importante para futuras funcionalidades de IA.
+**Resposta padronizada:**
 
----
+```json
+// sucesso
+{ "success": true, "data": { }, "meta": { "page": 1, "page_size": 20, "total": 120 } }
 
-# 40. UX / Navegação
-
-Menu principal sugerido:
-
-```text
-Dashboard
-
-CRM
- ├── Leads
- ├── Prospects
- ├── Clientes
- ├── Empresas
- └── Contatos
-
-Vendas
- ├── Pipeline
- ├── Oportunidades
- └── Propostas
-
-Atividades
- ├── Agenda
- ├── Tarefas
- └── Follow-ups
-
-Comunicação
- ├── E-mails
- ├── Templates
- └── Cadências
-
-Catálogo
- └── Produtos e Serviços
-
-Configurações
- ├── Usuário
- ├── Equipe
- ├── E-mail
- └── Sistema
+// erro
+{ "success": false, "error": { "code": "CONTACT_NOT_FOUND", "message": "Contato não encontrado.", "details": [] } }
 ```
 
-A navegação deverá permanecer enxuta e evitar excesso de menus.
+Códigos HTTP coerentes (400/401/403/404/409/422/500); erros de validação trazem detalhe por campo.
 
 ---
 
-# 41. Tela de Detalhes
+# 11. Requisitos Não Funcionais
 
-A tela de detalhes de uma entidade comercial deverá concentrar as informações.
-
-Exemplo:
-
-```text
-┌──────────────────────────────────────────────┐
-│ Empresa XYZ                                  │
-│ Indústria                                    │
-├──────────────────────────────────────────────┤
-│ Dados │ Oportunidades │ Atividades │ Histórico│
-├──────────────────────────────────────────────┤
-│                                              │
-│ Timeline                                     │
-│                                              │
-│ 05/10  E-mail enviado                        │
-│ 04/10  Reunião realizada                     │
-│ 01/10  Proposta enviada                      │
-│                                              │
-└──────────────────────────────────────────────┘
-```
+| Área | Requisito |
+|---|---|
+| **Performance** | Listagens p95 < 500 ms e detalhe p95 < 300 ms com até 50 mil contatos e 10 mil oportunidades; paginação obrigatória; índices em chaves de busca/filtro; tarefas demoradas (PDF pesado, e-mail em lote) assíncronas quando houver worker. |
+| **Segurança** | Hash de senha (argon2/bcrypt); tokens com expiração; autorização verificada no backend em todo endpoint; validação de entrada (schemas); proteção contra SQL Injection (ORM/parametrização) e XSS (sanitização de HTML de e-mail/observações); CORS configurável; rate limit no login; secrets só por variáveis de ambiente, nada no repositório; `.env` no `.gitignore`. |
+| **Privacidade (LGPD)** | Dados pessoais mínimos; possibilidade de excluir/anonimizar um contato a pedido do titular (exceção documentada à RN-12 de exclusão lógica); logs não registram dados sensíveis nem senhas. |
+| **Observabilidade** | Logging estruturado (JSON) com níveis DEBUG/INFO/WARNING/ERROR e campos: timestamp, request_id, user_id, serviço, erro, contexto. Endpoint de health-check. |
+| **Confiabilidade** | Migrations versionadas e reversíveis; transações nas conversões e mudanças de estágio (evento + alteração atômicos); backup do banco documentado no README. |
+| **Usabilidade** | Desktop primeiro; funcional em notebook e tablet; navegação enxuta; mensagens de erro claras em pt-BR; confirmações em ações destrutivas. |
+| **Portabilidade** | `docker compose up -d` sobe o ambiente; perfis `development` e `production`; `.env.example` completo. |
+| **Manutenibilidade** | Separação de camadas; lint/format/type-check (ruff, mypy opcional, eslint, vue-tsc) no CI **(proposto)**. |
+| **Compatibilidade** | Chrome, Edge, Firefox e Safari atuais (duas últimas versões). |
 
 ---
 
-# 42. Responsividade
+# 12. Configuração
 
-O sistema deverá funcionar em:
-
-* Desktop;
-* Notebook;
-* Tablet.
-
-O foco inicial será desktop, considerando o uso comercial.
-
----
-
-# 43. Segurança
-
-Requisitos mínimos:
-
-* autenticação segura;
-* senhas armazenadas com hash;
-* tokens de autenticação;
-* proteção de endpoints;
-* validação de entrada;
-* controle de acesso;
-* proteção contra SQL Injection;
-* proteção contra XSS;
-* CORS configurável;
-* secrets através de environment variables;
-* nenhuma credencial armazenada no código.
-
----
-
-# 44. Configuração
-
-A aplicação deverá utilizar `.env`.
-
-Exemplo conceitual:
+`.env` (nunca versionado) com `.env.example` versionado:
 
 ```env
 APP_ENV=production
-
 DATABASE_URL=
-
 JWT_SECRET=
-
+JWT_ACCESS_TTL_MINUTES=
+CORS_ORIGINS=
+DEFAULT_TIMEZONE=America/Sao_Paulo
+ADMIN_EMAIL=
+ADMIN_PASSWORD=
 SMTP_HOST=
 SMTP_PORT=
 SMTP_USER=
 SMTP_PASSWORD=
-
 AI_ENABLED=false
 AI_API_URL=
 ```
 
-Segredos nunca deverão ser versionados.
-
 ---
 
-# 45. Logging
-
-O backend deverá possuir logging estruturado.
-
-Categorias:
+# 13. UX / Navegação
 
 ```text
-INFO
-WARNING
-ERROR
-DEBUG
+Dashboard (P1)
+
+CRM:        Leads | Prospects | Clientes | Empresas | Contatos
+Vendas:     Pipeline | Oportunidades | Propostas
+Atividades: Tarefas e Follow-ups | Agenda (P1)
+Comunicação (P1): E-mails | Templates | Cadências
+Catálogo:   Produtos e Serviços
+Configurações: Usuário | Equipe | Pipeline e Listas | E-mail (P1) | Sistema
 ```
 
-Logs deverão permitir identificar:
-
-* requisição;
-* usuário;
-* erro;
-* serviço;
-* timestamp;
-* contexto.
+* No MVP, a página inicial é **"Minhas tarefas / follow-ups"** até o dashboard existir.
+* Itens P1 ficam ocultos até estarem disponíveis (sem menus vazios).
+* **Tela de detalhes** (Empresa, Contato, Oportunidade) com abas: Dados · Oportunidades · Atividades · Propostas · Histórico (timeline). A ação principal (registrar atividade, converter, criar proposta) fica visível no topo.
+* Padrões de interface (cores, tipografia, componentes, tabelas, formulários, dark/light) seguem o Vision.AI.
+* Estados vazios, carregamento e erro tratados em todas as listagens.
 
 ---
 
-# 46. Tratamento de Erros
+# 14. Testes e Qualidade
 
-A API deverá utilizar respostas padronizadas.
+Backend (obrigatório), por prioridade: (1) regras de negócio (RN-xx); (2) autenticação/autorização; (3) conversões Lead→Prospect→Cliente; (4) oportunidades e estágios; (5) propostas e cálculo (casos de arredondamento/desconto); (6) e-mail (P1); (7) cadências (P1).
 
-Exemplo:
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "CONTACT_NOT_FOUND",
-    "message": "Contato não encontrado."
-  }
-}
-```
+* Testes de API para cada endpoint principal (sucesso, validação, permissão).
+* Frontend: testes de componentes críticos (formulário de proposta, Kanban, conversões) e um fluxo E2E do caminho principal **(proposto)**.
+* Meta de cobertura: ≥ 80% em `services/` e `domain/`.
 
 ---
 
-# 47. Performance
-
-O MVP deverá priorizar simplicidade, mas a arquitetura deverá permitir crescimento.
-
-Requisitos:
-
-* paginação;
-* filtros no backend;
-* índices de banco;
-* consultas eficientes;
-* carregamento sob demanda;
-* processamento assíncrono para tarefas demoradas.
-
----
-
-# 48. Testes
-
-O backend deverá possuir testes automatizados.
-
-Prioridade:
-
-1. regras de negócio;
-2. autenticação;
-3. conversão Lead → Prospect;
-4. conversão Prospect → Cliente;
-5. oportunidades;
-6. propostas;
-7. envio de e-mail;
-8. cadências.
-
-Frontend deverá possuir testes para componentes críticos quando necessário.
-
----
-
-# 49. Docker
-
-O projeto deverá possuir:
-
-```text
-Dockerfile
-docker-compose.yml
-.env.example
-```
-
-Ambientes:
-
-```text
-development
-production
-```
-
-O ambiente deverá poder ser iniciado com poucos comandos.
-
-Exemplo:
-
-```bash
-docker compose up -d
-```
-
----
-
-# 50. Estrutura de Projeto
-
-Estrutura sugerida:
+# 15. Estrutura de Projeto
 
 ```text
 mini-crm/
-│
 ├── backend/
 │   ├── app/
-│   │   ├── api/
-│   │   ├── core/
+│   │   ├── api/v1/
+│   │   ├── core/            (config, security, logging, errors)
+│   │   ├── domain/          (entidades, regras puras, eventos)
 │   │   ├── models/
 │   │   ├── schemas/
 │   │   ├── services/
 │   │   ├── repositories/
-│   │   ├── integrations/
-│   │   └── workers/
-│   │
+│   │   ├── integrations/    (smtp, pdf, futura IA)
+│   │   └── workers/         (P1)
 │   ├── migrations/
 │   ├── tests/
-│   └── requirements.txt
-│
+│   └── pyproject.toml | requirements.txt
 ├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── views/
-│   │   ├── layouts/
-│   │   ├── composables/
-│   │   ├── services/
-│   │   ├── stores/
-│   │   └── types/
+│   ├── src/{components,views,layouts,composables,services,stores,types}/
 │   └── package.json
-│
 ├── docker/
-│
-├── docs/
-│
+├── docs/                    (PRD.md, SPEC.md)
 ├── docker-compose.yml
 ├── .env.example
 └── README.md
@@ -1380,293 +483,93 @@ mini-crm/
 
 ---
 
-# 51. MVP — Prioridades
+# 16. Escopo e Roadmap
 
-O MVP deverá concentrar-se nas seguintes funcionalidades:
+## 16.1 Prioridades
 
-## P0 — Obrigatório
+**P0 — MVP:** autenticação e usuários; empresas; contatos; leads/prospects/clientes e conversões; oportunidades e pipeline; atividades, follow-ups e timeline; produtos/serviços; propostas e PDF; eventos/auditoria; Docker; API REST.
 
-* autenticação;
-* usuários;
-* empresas;
-* contatos;
-* leads;
-* prospects;
-* clientes;
-* conversão Lead → Prospect;
-* conversão Prospect → Cliente;
-* oportunidades;
-* pipeline;
-* atividades;
-* histórico/timeline;
-* follow-ups;
-* produtos/serviços;
-* propostas;
-* geração de PDF;
-* Docker;
-* API REST.
+**P1 — Segunda etapa:** e-mail, templates, cadências, scheduler/worker, dashboard, tags, busca global, agenda em calendário, recuperação de senha por e-mail.
 
-## P1 — Segunda etapa
+**P2 — Evolução:** automações por eventos, webhooks, integrações, IA (scoring, resumo, próxima ação, geração de e-mail, sentimento), tracking de visualização de proposta, multi-tenant, importação/exportação.
 
-* envio de e-mails;
-* templates;
-* cadências;
-* scheduler;
-* dashboard;
-* tags;
-* busca global.
+## 16.2 Roadmap
 
-## P2 — Evolução
+| Fase | Tema | Conteúdo |
+|---|---|---|
+| 1 | Core CRM | CRM, pipeline, atividades, propostas, histórico |
+| 2 | Comunicação | E-mail, templates, cadências, scheduler |
+| 3 | Automação | Triggers, workflows, webhooks, integrações |
+| 4 | IA | Scoring, resumo, next best action, geração de e-mail, agentes |
+| 5 | Ecossistema | WhatsApp, ERP, marketing, BI, data lake, MCP |
 
-* automações;
-* webhooks;
-* integração com APIs externas;
-* IA;
-* lead scoring;
-* geração automática de e-mails;
-* resumo automático;
-* recomendação de próxima ação.
+## 16.3 Visão de longo prazo
+
+Evoluir de CRM tradicional para **CRM + Automação + IA**, permitindo que o usuário comece usando só o CRM e habilite automações e IA depois, sem migrar de plataforma. A IA futura será um serviço independente (LLM, embeddings, vector DB, agentes) consumindo a API e os eventos do CRM, e **jamais obrigatório** para o funcionamento básico.
 
 ---
 
-# 52. Fluxo Principal do MVP
+# 17. Critérios de Aceite — MVP
 
-Fluxo esperado:
+Cada item deve virar ao menos um caso de teste na SPEC.
 
-```text
-                    ┌─────────────┐
-                    │     Lead    │
-                    └──────┬──────┘
-                           │
-                     Qualificação
-                           │
-                    ┌──────▼──────┐
-                    │   Prospect  │
-                    └──────┬──────┘
-                           │
-                     Oportunidade
-                           │
-                    ┌──────▼──────┐
-                    │  Proposta   │
-                    └──────┬──────┘
-                           │
-                      Negociação
-                           │
-                 ┌─────────┴─────────┐
-                 │                   │
-            Fechado Ganho       Fechado Perdido
-                 │
-          ┌──────▼──────┐
-          │   Cliente   │
-          └─────────────┘
-```
+**CRM**
+* Cadastrar empresa (CNPJ inválido ou duplicado é rejeitado).
+* Cadastrar contato vinculado a empresa.
+* Cadastrar lead e avançar seu status até `Qualificado`.
+* Converter Lead → Prospect; a conversão é bloqueada se não estiver `Qualificado`.
+* Converter Prospect → Cliente manualmente e via oportunidade ganha.
+* Visualizar timeline completa do contato, incluindo eventos anteriores à conversão.
 
-Durante todo o processo:
+**Vendas**
+* Criar oportunidade (bloqueada para lead puro sem conversão).
+* Mover no Kanban e por formulário; probabilidade acompanha o estágio.
+* Fechar como perdida exige motivo; fechar como ganha converte para Cliente.
+* Registrar valor e previsão de fechamento; totais por coluna corretos.
 
-```text
-             ┌──────────────┐
-             │   Timeline   │
-             └──────┬───────┘
-                    │
-       ┌────────────┼─────────────┐
-       │            │             │
-    E-mails      Atividades    Follow-ups
-       │            │             │
-       └────────────┼─────────────┘
-                    │
-                Histórico
-```
+**Atividades**
+* Criar tarefa; registrar ligação e reunião; definir follow-up.
+* Follow-ups vencidos aparecem destacados como atrasados.
+* Listar atividades pendentes filtradas por responsável.
+
+**Propostas**
+* Criar proposta vinculada à oportunidade, adicionar produtos e itens avulsos.
+* Subtotal, desconto e total conforme RN-10.
+* Alterar status conforme RF-65; proposta enviada fica somente leitura; revisar cria nova proposta.
+* Gerar PDF correto e consistente com os dados da tela.
+
+**Segurança e Infraestrutura**
+* Endpoint sem token retorna 401; Vendedor acessando recurso de Admin retorna 403.
+* Subir ambiente via Docker a partir de `.env.example`; migrations executadas automaticamente ou por comando documentado; API em `/api/v1`, documentação OpenAPI e frontend acessíveis.
 
 ---
 
-# 53. Critérios de Aceite — MVP
+# 18. Princípios de Desenvolvimento
 
-O MVP será considerado funcional quando o usuário conseguir:
-
-### CRM
-
-* cadastrar uma empresa;
-* cadastrar um contato;
-* cadastrar um Lead;
-* converter Lead em Prospect;
-* converter Prospect em Cliente;
-* visualizar histórico completo.
-
-### Vendas
-
-* criar oportunidade;
-* movimentar oportunidade no pipeline;
-* alterar estágio;
-* registrar valor;
-* definir previsão de fechamento.
-
-### Atividades
-
-* criar tarefa;
-* registrar ligação;
-* registrar reunião;
-* definir follow-up;
-* visualizar atividades pendentes.
-
-### Propostas
-
-* criar proposta;
-* adicionar produtos;
-* calcular subtotal;
-* aplicar desconto;
-* calcular total;
-* alterar status;
-* gerar PDF;
-* associar proposta à oportunidade.
-
-### Infraestrutura
-
-* executar aplicação via Docker;
-* configurar através de `.env`;
-* executar migrations;
-* acessar API;
-* acessar frontend.
+* **KISS** — manter simples; evitar abstrações desnecessárias.
+* **Modularidade** — cada domínio com responsabilidade clara.
+* **Reutilização** — aproveitar padrões do pro-ai-assistant e do Vision.AI quando apropriado, sem acoplamento.
+* **API First** — lógica comercial no backend, acessível via API.
+* **AI Ready / Automation Ready** — eventos persistidos e metadados permitem IA e workflows no futuro sem torná-los dependência.
+* **Self-hosted Ready** — sem dependência obrigatória de SaaS externo.
 
 ---
 
-# 54. Princípios de Desenvolvimento
+# 19. Questões em Aberto (resolver antes/durante a SPEC)
 
-## KISS
-
-Manter a aplicação simples.
-
-Evitar abstrações desnecessárias.
-
-## Modularidade
-
-Cada domínio deverá possuir responsabilidade clara.
-
-## Reutilização
-
-Reutilizar componentes e padrões existentes do ProAgentHub e Vision.AI quando apropriado.
-
-## API First
-
-A lógica comercial deverá estar no backend e ser acessível através da API.
-
-## AI Ready
-
-A arquitetura deverá permitir integração futura com IA sem tornar a IA uma dependência do CRM.
-
-## Automation Ready
-
-Eventos e tarefas deverão permitir futura criação de workflows.
-
-## Self-hosted Ready
-
-O sistema deverá funcionar sem dependência obrigatória de serviços SaaS externos.
-
----
-
-# 55. Roadmap Futuro
-
-### Fase 1 — Core CRM
-
-```text
-CRM
-Pipeline
-Atividades
-Propostas
-Histórico
-```
-
-### Fase 2 — Comunicação
-
-```text
-E-mail
-Templates
-Cadências
-Scheduler
-```
-
-### Fase 3 — Automação
-
-```text
-Triggers
-Workflows
-Webhooks
-Integrações
-```
-
-### Fase 4 — IA
-
-```text
-Lead Scoring
-Resumo automático
-Next Best Action
-Geração de e-mails
-Análise de relacionamento
-Agentes
-```
-
-### Fase 5 — Ecossistema
-
-```text
-WhatsApp
-ERP
-Marketing
-BI
-Data Lake
-APIs externas
-MCP
-```
-
----
-
-# 56. Visão de Longo Prazo
-
-O MINI-CRM deverá evoluir de um CRM tradicional para uma plataforma de **CRM + Automação + IA**.
-
-A arquitetura futura poderá ser representada como:
-
-```text
-                     MINI-CRM
-                         │
-        ┌────────────────┼────────────────┐
-        │                │                │
-       CRM          Automação             IA
-        │                │                │
-   ┌────┴────┐      ┌────┴────┐      ┌────┴────┐
-   │ Leads   │      │Workflow │      │   LLM   │
-   │ Clientes│      │Triggers │      │ Agents  │
-   │ Vendas  │      │Scheduler│      │ Scoring │
-   └─────────┘      └─────────┘      └─────────┘
-                         │
-                    Integrações
-                         │
-              ┌──────────┼──────────┐
-              │          │          │
-             ERP       E-mail    WhatsApp
-```
-
-O objetivo é que o usuário possa inicialmente utilizar o produto simplesmente como CRM, mas posteriormente habilitar automações e inteligência artificial sem precisar migrar para outra plataforma.
-
----
-
-# 57. Resultado Esperado
-
-O resultado final do MVP deverá ser um CRM:
-
-* simples;
-* rápido;
-* moderno;
-* intuitivo;
-* modular;
-* containerizado;
-* fácil de instalar;
-* fácil de manter;
-* adequado para pequenas e médias equipes;
-* independente de serviços externos para suas funções básicas;
-* preparado para integrações;
-* preparado para automações;
-* preparado para IA.
-
-A prioridade deverá ser **entregar um núcleo comercial sólido antes de adicionar funcionalidades avançadas**.
+| ID | Questão | Sugestão / padrão assumido |
+|---|---|---|
+| Q-01 | Confirmar stack: FastAPI, PostgreSQL, SQLAlchemy/Alembic, Pinia, Vite, biblioteca de PDF. | Conforme seção 5 (proposto). |
+| Q-02 | Confirmar modelo de ciclo de vida como atributo (seção 6.1) em vez de entidades separadas. | Adotado nesta versão. |
+| Q-03 | O que exatamente será reaproveitado do `vision.ai` e do `pro-ai-assistant`? Os dois repositórios estão acessíveis? | Levantar inventário no início da SPEC. |
+| Q-04 | Multi-tenant: nunca, futuro próximo ou necessário já? Define se `tenant_id` entra no esquema desde o início. | Single-tenant com ponto de extensão. |
+| Q-05 | Visibilidade: vendedor vê/edita todos os registros ou só os próprios? | Vê todos; edita os próprios (ou todos) — decidir. |
+| Q-06 | Uma empresa pode ter ciclo de vida diferente do contato (ex.: empresa cliente com contato lead)? | Empresa herda o "mais avançado" entre seus contatos. |
+| Q-07 | Importação de CSV de planilhas existentes é necessária no MVP (o objetivo cita "eliminar planilhas")? | Se sim, entra como P0 (RF novo). |
+| Q-08 | Dados da empresa emissora e logo para o PDF: onde ficam e há um template de PDF de referência? | Configurações → Sistema; template padrão simples. |
+| Q-09 | Moeda única (BRL) ou multi-moeda? | BRL única. |
+| Q-10 | Anexos (arquivos) em contatos/oportunidades são necessários no MVP? Onde armazenar (disco/volume/S3)? | Fora do MVP, exceto PDF gerado sob demanda. |
+| Q-11 | Dashboard e busca global permanecem P1 ou sobem para o MVP? | Busca simples por nome no MVP; dashboard P1. |
 
 ---
 
